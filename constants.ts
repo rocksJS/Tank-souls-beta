@@ -10,9 +10,9 @@ export const PLAYER_SPEED = 2;
 export const ENEMY_SPEED = 0.375;
 export const PLAYER_BULLET_SPEED = 3.75;
 export const ENEMY_BULLET_SPEED = 3.25;
-export const TANK_SIZE = 28; 
+export const TANK_SIZE = 28;
 export const BULLET_SIZE = 4;
-export const SHOOT_COOLDOWN = 30; 
+export const SHOOT_COOLDOWN = 30;
 
 // Player Constants
 export const PLAYER_MAX_HP = 3;
@@ -23,7 +23,7 @@ export const BOSS_HP = 30;
 export const BOSS_SPEED = 0.45; // Increased by 20% (0.375 * 1.2)
 export const BOSS_SHOOT_COOLDOWN = 80; // Increased fire rate by another 50% (120 / 1.5)
 // Updated: Boss bullet speed equals Player movement speed
-export const BOSS_BULLET_SPEED = PLAYER_SPEED; 
+export const BOSS_BULLET_SPEED = PLAYER_SPEED;
 
 // Sally Boss (Level 3) - Formerly Prophet
 export const SALLY_SIZE = TANK_SIZE * 3.5; // ~98
@@ -38,7 +38,7 @@ export const BLOODSEEKER_SIZE = 40;
 export const BLOODSEEKER_BASE_SPEED = 1.0;
 export const BLOODSEEKER_MAX_SPEED = 3.5; // Very fast when low HP
 export const BLOOD_POOL_DURATION = 150; // Reduced to 2.5 seconds (60fps * 2.5) -> Then explodes
-export const BLOOD_POOL_DROP_RATE = 40; 
+export const BLOOD_POOL_DROP_RATE = 40;
 export const BLOODSEEKER_BITE_RANGE = 180; // Doubled (was 90)
 export const BLOODSEEKER_PRE_BITE_DURATION = 72; // 1.2s
 export const BLOODSEEKER_BITE_DURATION = 20; // Lunge duration
@@ -73,7 +73,7 @@ export const SALLY_LASER_COOLDOWN = 180; // 3 seconds between cycles
 export const SALLY_PRE_CHARGE = 6; // 0.1 seconds
 export const SALLY_CHARGE = 78; // 1.3 seconds
 export const SALLY_LASER_DURATION = 30; // 0.5 seconds firing
-export const SALLY_LASER_WIDTH = 16; 
+export const SALLY_LASER_WIDTH = 16;
 export const SALLY_LASER_TRACE_DURATION = 120; // 2 seconds
 
 // Sally Shotgun Ability
@@ -123,39 +123,54 @@ const LEVEL_1 = [
   [0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0],
   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
 // Helper to create empty row filled with value
 const row = (val: number) => Array(GRID_WIDTH).fill(val);
 // Helper to create pillar row: fog everywhere except pillars at 4,5 and 20,21
 const pillarRow = (val: number, pillarVal: number) => {
-    const r = Array(GRID_WIDTH).fill(val);
-    r[4] = pillarVal; r[5] = pillarVal;
-    r[20] = pillarVal; r[21] = pillarVal;
-    return r;
+  const r = Array(GRID_WIDTH).fill(val);
+  r[4] = pillarVal;
+  r[5] = pillarVal;
+  r[20] = pillarVal;
+  r[21] = pillarVal;
+  return r;
 };
 
 // Level 2: Boss Arena with Fog Blocks
 // Rows 0-15 filled with Fog (11) where empty, covering top AND bottom pillars
 const LEVEL_2 = [
-    row(11), row(11),
-    pillarRow(11, 2), pillarRow(11, 2),
-    row(11), row(11), row(11), row(11),
-    row(11), row(11), row(11), row(11),
-    row(11), row(11), row(11), row(11),
-    pillarRow(11, 2), pillarRow(11, 2),
-    row(0), row(0) // Removed Fog from bottom 2 rows
+  row(11),
+  row(11),
+  pillarRow(11, 2),
+  pillarRow(11, 2),
+  row(11),
+  row(11),
+  row(11),
+  row(11),
+  row(11),
+  row(11),
+  row(11),
+  row(11),
+  row(11),
+  row(11),
+  row(11),
+  row(11),
+  pillarRow(11, 2),
+  pillarRow(11, 2),
+  row(0),
+  row(0), // Removed Fog from bottom 2 rows
 ];
 
 // Level 3: Sally Arena (Filled with Fog for intro, except bottom)
 const LEVEL_3 = [];
-for(let y = 0; y < GRID_HEIGHT; y++) {
+for (let y = 0; y < GRID_HEIGHT; y++) {
   if (y >= GRID_HEIGHT - 2) {
-      LEVEL_3.push(row(0)); // Removed Fog from bottom 2 rows
+    LEVEL_3.push(row(0)); // Removed Fog from bottom 2 rows
   } else {
-      LEVEL_3.push(row(11)); // Filled with FOG (11)
+    LEVEL_3.push(row(11)); // Filled with FOG (11)
   }
 }
 
@@ -165,40 +180,42 @@ const WIRE = 12;
 const STEEL = 2;
 const FOG = 11;
 
-for(let y = 0; y < GRID_HEIGHT; y++) {
-    const r = Array(GRID_WIDTH).fill(FOG); // Start with FOG
-    
-    // Wire on sides (Outer Walls)
-    r[0] = WIRE;
-    r[GRID_WIDTH - 1] = WIRE;
+for (let y = 0; y < GRID_HEIGHT; y++) {
+  const r = Array(GRID_WIDTH).fill(FOG); // Start with FOG
 
-    // Clear Fog at bottom for player spawn area
-    if (y >= GRID_HEIGHT - 2) {
-        for(let x = 1; x < GRID_WIDTH - 1; x++) {
-            r[x] = 0;
-        }
+  // Wire on sides (Outer Walls)
+  r[0] = WIRE;
+  r[GRID_WIDTH - 1] = WIRE;
+
+  // Clear Fog at bottom for player spawn area
+  if (y >= GRID_HEIGHT - 2) {
+    for (let x = 1; x < GRID_WIDTH - 1; x++) {
+      r[x] = 0;
     }
+  }
 
-    // 4 Central Pillars (Steel 2x2 blocks)
-    // Pillar X: 10,11 and 14,15
-    if (y === 7 || y === 8 || y === 12 || y === 13) {
-        r[10] = STEEL; r[11] = STEEL;
-        r[14] = STEEL; r[15] = STEEL;
-        
-        // Add Wire Traps Flanking the Pillars (For baiting)
-        // Left of Left Pillar
-        r[7] = WIRE; 
-        // Right of Right Pillar
-        r[18] = WIRE; 
-    }
+  // 4 Central Pillars (Steel 2x2 blocks)
+  // Pillar X: 10,11 and 14,15
+  if (y === 7 || y === 8 || y === 12 || y === 13) {
+    r[10] = STEEL;
+    r[11] = STEEL;
+    r[14] = STEEL;
+    r[15] = STEEL;
 
-    // Добавляем еще 2 блока из металла симметрично
-    if (y === 15) {
-        r[8] = STEEL;
-        r[17] = STEEL;
-    }
+    // Add Wire Traps Flanking the Pillars (For baiting)
+    // Left of Left Pillar
+    r[7] = WIRE;
+    // Right of Right Pillar
+    r[18] = WIRE;
+  }
 
-    LEVEL_4.push(r);
+  // Добавляем еще 2 блока из металла симметрично
+  if (y === 15) {
+    r[8] = STEEL;
+    r[17] = STEEL;
+  }
+
+  LEVEL_4.push(r);
 }
 
 export const LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4];

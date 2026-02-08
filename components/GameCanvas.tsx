@@ -184,15 +184,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     const newTileHp = Array(GRID_HEIGHT).fill(0).map(() => Array(GRID_WIDTH).fill(0));
 
     // Explicitly set base and walls ONLY for Level 1
-    if (level === 1) {
-        const centerX = Math.floor(GRID_WIDTH / 2);
-        const gridY = GRID_HEIGHT - 1;
-        newMap[gridY][centerX] = TileType.BASE;
-        newMap[gridY][centerX-1] = TileType.BRICK;
-        newMap[gridY][centerX+1] = TileType.BRICK;
-        newMap[gridY-1][centerX] = TileType.BRICK;
-        newMap[gridY-1][centerX-1] = TileType.BRICK;
-        newMap[gridY-1][centerX+1] = TileType.BRICK;
+    if (level === 1) if (level === 1) {
+        // логика менять лвл после инициалиации
     } else if (level === 2) {
        // Level 2 Setup
        setEnemiesLeft(1); // Only JUGG left

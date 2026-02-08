@@ -2254,6 +2254,45 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
             }
         }
     });
+
+    // --- NEW: Bullet vs Bullet Collisions (взаимное уничтожение пуль) ---
+const bulletCollisionIndices: number[] = [];
+
+for (let i = 0; i < bulletsRef.current.length; i++) {
+  for (let j = i + 1; j < bulletsRef.current.length; j++) {  // i < j чтобы избежать дублей
+    const bullet1 = bulletsRef.current[i];
+    const bullet2 = bulletsRef.current[j];
+
+    if (bullet1.active && bullet2.active && checkRectCollision(bullet1, bullet2)) {
+      bulletCollisionIndices.push(i, j);
+
+      // Эффект искр (частицы) в центре столкновения
+      const midX = (bullet1.x + bullet1.width / 2 + bullet2.x + bullet2.width / 2) / 2;
+      const midY = (bullet1.y + bullet1.height / 2 + bullet2.y + bullet2.height / 2) / 2;
+      explosionsRef.current.push({
+        x: midX,
+        y: midY,
+        id: `spark_${Math.random().toString(36).substr(2, 9)}`,
+        stage: 3,  // короткий взрыв искр (настрой под свой эффект)
+        active: true,
+        type: 'impact'  // используем существующий тип 'impact' для искр/взрыва
+      });
+
+      // Опционально: счётчик для боссов (если есть в Tank type)
+      const bossBullet = bullet1.owner === 'boss' || bullet2.owner === 'boss';
+      if (bossBullet && enemiesRef.current.find(e => e.id === 'JUGG' || e.id === 'SALLY' || e.id === 'BLOODSEEKER')) {
+        // enemyRef.current.bulletCollisionCount = (enemyRef.current.bulletCollisionCount || 0) + 1;
+      }
+    }
+  }
+}
+
+// Деактивируем пули (filter ниже их удалит, индексы в reverse чтобы не сдвигать)
+bulletCollisionIndices.sort((a, b) => b - a).forEach((idx) => {
+  if (bulletsRef.current[idx]) {
+    bulletsRef.current[idx].active = false;
+  }
+});
     
     // Filter dead bullets and enemies
     bulletsRef.current = bulletsRef.current.filter(b => b.active);

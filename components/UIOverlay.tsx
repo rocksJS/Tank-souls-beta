@@ -185,6 +185,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
               {renderLevelButton(2, 'II')}
               {renderLevelButton(3, 'III')}
               {renderLevelButton(4, 'IV')}
+              {renderLevelButton(5, 'V')}
             </div>
 
             <button

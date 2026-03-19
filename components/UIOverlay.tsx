@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { GameState } from '../types';
+import { LEVELS } from '@/constants';
 
 interface UIOverlayProps {
   gameState: GameState;
@@ -10,6 +11,8 @@ interface UIOverlayProps {
   startGame: () => void;
   resumeGame: () => void;
   level: number;
+  levelCount: number;
+  levelMap: [];
   setLevel: (level: number) => void;
   unlockedLevel: number;
   setUnlockedLevel?: React.Dispatch<React.SetStateAction<number>>;
@@ -29,9 +32,12 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
   setScore,
   enemiesLeft,
   startGame,
+  startGameTesting,
   resumeGame,
   level,
   setLevel,
+  levelCount,
+  levelMap,
   unlockedLevel,
   setUnlockedLevel,
   isGameInProgress,
@@ -112,10 +118,14 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
   const DARKSIGN_PRICE = 999;
 
   // Helper to render level buttons
-  const renderLevelButton = (lvlIdx: number, roman: string) => {
-    const isUnlocked = lvlIdx <= unlockedLevel;
-    const isCompleted = lvlIdx < unlockedLevel;
-    const isSelected = level === lvlIdx;
+  const renderLevelButton = (levelId: number, roman: string) => {
+    if (levelId === 1) {
+      console.log('we press F');
+    }
+    console.log('rendering level...', levelId, roman);
+    const isUnlocked = levelId <= unlockedLevel;
+    const isCompleted = levelId < unlockedLevel;
+    const isSelected = level === levelId;
 
     // Use consistent sizing and alignment
     let baseClasses = 'text-lg transition-all duration-300 relative w-12 h-12 flex items-center justify-center ';
@@ -129,10 +139,25 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
       );
     }
 
+    if (levelId === 1) {
+      console.log(levelId, level);
+      return (
+        <button onClick={() => setLevel(1)} className={`${baseClasses}`}>
+          <span
+            className={`transition-all duration-300 ${
+              isSelected ? 'text-gray-100 font-bold scale-110 drop-shadow-md' : 'text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            {roman}
+          </span>
+        </button>
+      );
+    }
+
     if (isCompleted) {
       // COMPLETED
       return (
-        <button onClick={() => setLevel(lvlIdx)} className={`${baseClasses} group`}>
+        <button onClick={() => setLevel(levelId)} className={`${baseClasses} group`}>
           <span
             className={`text-yellow-600 drop-shadow-[0_0_5px_rgba(218,165,32,0.3)] transition-all duration-300 ${
               isSelected ? 'font-bold text-yellow-400 drop-shadow-[0_0_8px_rgba(218,165,32,0.6)] scale-110' : ''
@@ -146,7 +171,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
 
     // CURRENT / PLAYED (Available but not finished next tier)
     return (
-      <button onClick={() => setLevel(lvlIdx)} className={`${baseClasses}`}>
+      <button onClick={() => setLevel(levelId)} className={`${baseClasses}`}>
         <span
           className={`transition-all duration-300 ${
             isSelected ? 'text-gray-100 font-bold scale-110 drop-shadow-md' : 'text-gray-500 hover:text-gray-300'
@@ -194,6 +219,14 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
             >
               <span className="absolute inset-0 w-full h-full bg-gray-800/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
               <span className="relative tracking-widest uppercase">Begin Journey</span>
+            </button>
+
+            <button
+              onClick={startGameTesting}
+              className="group relative px-10 py-3 bg-transparent hover:bg-gray-900 text-gray-300 font-serif text-xl border border-gray-600 hover:border-gray-400 transition-all duration-500 ease-in-out w-full max-w-xs mt-8 mb-2"
+            >
+              <span className="absolute inset-0 w-full h-full bg-gray-800/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
+              <span className="relative tracking-widest uppercase">Begin Journey test</span>
             </button>
 
             {isGameInProgress && (
@@ -301,15 +334,16 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
                   // Square NES Toggle
                   <div
                     onClick={() => {
+                      console.log(levelCount, 'levelCounteerr');
                       // Toggle behavior: If >=4 (ON) -> Set to 1 (OFF). If <4 (OFF) -> Set to 4 (ON).
-                      if (unlockedLevel >= 4) {
-                        if (setUnlockedLevel) setUnlockedLevel(1); // Lock levels back to 1
+                      if (unlockedLevel >= 5) {
+                        if (setUnlockedLevel) setUnlockedLevel(1); // Lock           back to 1
                       } else {
-                        if (setUnlockedLevel) setUnlockedLevel(4); // Unlock all
+                        if (setUnlockedLevel) setUnlockedLevel(5); // Unlock all
                       }
                     }}
                     className={`w-12 h-6 border-2 relative cursor-pointer transition-colors duration-200 flex items-center p-1 ${
-                      unlockedLevel >= 4
+                      unlockedLevel >= 5
                         ? 'bg-[#003300] border-[#006600]' // Dark Green ON
                         : 'bg-[#2a1a1a] border-[#880000]' // Dark Gray-Red OFF
                     }`}
@@ -317,7 +351,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
                     {/* Knob */}
                     <div
                       className={`w-3 h-3 border border-black shadow-sm transition-all duration-200 absolute ${
-                        unlockedLevel >= 4
+                        unlockedLevel >= 5
                           ? 'right-1 bg-[#00ff00]' // Bright Green Knob
                           : 'left-1 bg-[#880000]' // Red Knob
                       }`}
@@ -328,7 +362,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
                   <button
                     onClick={() => {
                       setBoneUnlocked(true);
-                      if (setUnlockedLevel) setUnlockedLevel(4); // Immediately unlock levels (Toggle ON)
+                      if (setUnlockedLevel) setUnlockedLevel(5); // Immediately unlock levels (Toggle ON)
                     }}
                     className="text-[10px] px-2 py-1 border transition-all duration-300 w-full bg-gray-800 hover:bg-gray-700 text-gray-300 border-gray-600 hover:border-gray-400 cursor-pointer"
                   >

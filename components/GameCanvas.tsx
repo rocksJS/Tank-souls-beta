@@ -70,6 +70,30 @@ import {
 } from '../constants';
 import { Direction, GameState, Tank, TileType, Bullet, Explosion } from '../types';
 
+// EMPTY ENTITY BOSS
+// template for entity
+const ENTITY = {
+  x: (GRID_WIDTH / 2) * TILE_SIZE - BOSS_SIZE / 2,
+  y: TILE_SIZE * 2, // Starts at landing spot
+  width: BOSS_SIZE,
+  height: BOSS_SIZE,
+  direction: Direction.DOWN,
+  speed: BOSS_SPEED,
+  id: 'entity', // по id ищется скин (skin find)
+  type: 'boss',
+  cooldown: 0,
+  isDead: false,
+  hp: BOSS_HP,
+  maxHp: BOSS_HP,
+  introState: 'DORMANT', // Waiting for fog clear
+  introOffsetY: 0,
+  introTimer: 0,
+  defenseBuffTimer: 0,
+  hitsOnPlayer: 0,
+  bulletCollisionCount: 0,
+  shotgunCooldown: 0,
+};
+
 interface GameCanvasProps {
   gameState: GameState;
   setGameState: (state: GameState) => void;
@@ -245,6 +269,9 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     baseActiveRef.current = true;
     enemySpawnTimerRef.current = 0;
 
+    if (level === LEVELS.length) {
+      enemiesRef.current.push(ENTITY); // create working empty level
+    }
     // Spawning Setup
     if (level === 1) {
       enemiesToSpawnRef.current = 20;
@@ -347,6 +374,9 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         bigPoolTimer: 0,
         tentacles: [], // Initialize empty
       });
+      bossSpawnedRef.current = true;
+    } else if (level === 5) {
+      enemiesRef.current.push(ENTITY); //spawn empty ENTITY on lvl 5
       bossSpawnedRef.current = true;
     } else {
       bossSpawnedRef.current = false;
@@ -802,6 +832,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     }
 
     // --- Enemy Spawning (Standard Levels) ---
+    // Очень странная функция. Нужен рефакторинг, это взято из гитхаба чата rocksJS.
+
     if (level === 1) {
       // Removed level 3 from standard spawning
       enemySpawnTimerRef.current++;

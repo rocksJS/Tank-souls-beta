@@ -3,9 +3,10 @@ import GameCanvas from './components/GameCanvas';
 import UIOverlay from './components/UIOverlay';
 import Sidebar from './components/Sidebar';
 import { GameState, Tank } from './types';
-import { PLAYER_MAX_HP } from './constants';
+import { LEVELS, PLAYER_MAX_HP, generateRandomMap, getLastItemInArray } from './constants';
 
 const SAVE_KEY = 'tank_souls_save_data_v1';
+const LEVEL_COUNT = 5;
 
 const App: React.FC = () => {
   // --- State Initialization with LocalStorage ---
@@ -19,14 +20,19 @@ const App: React.FC = () => {
     }
   };
 
-  const savedData = getSavedData();
+  // Attempt to load saved game state from local storage
+  const savedData = getSavedData(); // Get saved game state from local storage, if any <-- Windsurf Testing by me
 
   const [gameState, setGameState] = useState<GameState>(GameState.MENU);
   // Keep score persistent so users can save up for items across sessions
   const [score, setScore] = useState<number>(savedData?.score ?? 0);
   const [enemiesLeft, setEnemiesLeft] = useState<number>(20);
 
-  const [level, setLevel] = useState<number>(savedData?.unlockedLevel ?? 1); // Start at latest unlocked (Возврат к состоянию приложения)
+  const [levelMap, setLevelMap] = useState<[]>(savedData?.levelMap ?? 1);
+  const [level, setLevel] = useState<number | string>(savedData?.unlockedLevel ?? 1); // Start at latest unlocked (Возврат к состоянию приложения)
+
+  const [levelCount, setLevelCount] = useState<number>(savedData?.levelCount ?? LEVEL_COUNT); // Количество ингейм уровней (Возврат к состоянию приложения)
+
   const [unlockedLevel, setUnlockedLevel] = useState<number>(savedData?.unlockedLevel ?? 1);
 
   const [gameSessionId, setGameSessionId] = useState<number>(0);
@@ -48,11 +54,13 @@ const App: React.FC = () => {
       score,
       unlockedLevel,
       deathCount,
+      levelCount,
+      levelMap,
       estusUnlocked,
       boneUnlocked,
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave));
-  }, [score, unlockedLevel, deathCount, estusUnlocked, boneUnlocked]);
+  }, [score, unlockedLevel, levelCount, levelMap, deathCount, estusUnlocked, boneUnlocked]);
 
   // Handle Victory unlocking logic and game progress state
   useEffect(() => {
@@ -68,10 +76,8 @@ const App: React.FC = () => {
   }, [gameState, level, unlockedLevel]);
 
   const startGame = () => {
-    setGameSessionId((prev) => prev + 1);
-    setGameState(GameState.PLAYING);
-    // Note: We do NOT reset score here anymore, allowing souls to persist for the shop.
-
+    setGameSessionId((prev) => prev + 1); // добавляем +1 к количеству гейм сессий, число хранится так же как число смертей
+    setGameState(GameState.PLAYING); // Start the game
     setEnemiesLeft(20);
     setIsGameInProgress(true);
     setPlayerHp(PLAYER_MAX_HP);
@@ -82,6 +88,34 @@ const App: React.FC = () => {
     } else {
       setEstusCharges(0);
     }
+  };
+
+  const startGameTesting = () => {
+    setGameSessionId((prev) => prev + 1); // добавляем +1 к количеству гейм сессий, число хранится так же как число смертей
+    setGameState(GameState.PLAYING); // Start the game
+    setIsGameInProgress(true);
+    setPlayerHp(PLAYER_MAX_HP);
+
+    setLevel(LEVELS.length); // LEVEL_0
+
+    setLevelMap([2, 3]); // некст нужно парсить из константы в локал сторадже. Тогда у нас будет доступ до карты постоянно.
+
+    // setLevelMap(levelMap) // set Level Map State
+
+    // setLevelMap
+
+    // renderLevelButton(0);
+
+    // setEnemiesLeft(20);
+    // setIsGameInProgress(true);
+    // setPlayerHp(PLAYER_MAX_HP);
+
+    // // Reset Estus charges on level start if unlocked
+    // if (estusUnlocked) {
+    //   setEstusCharges(3);
+    // } else {
+    //   setEstusCharges(0);
+    // }
   };
 
   const resumeGame = () => {
@@ -122,6 +156,8 @@ const App: React.FC = () => {
                 setScore={setScore}
                 setEnemiesLeft={setEnemiesLeft}
                 level={level}
+                levelCount={levelCount}
+                levelMap={levelMap}
                 gameSessionId={gameSessionId}
                 onPlayerDeath={handlePlayerDeath}
                 estusUnlocked={estusUnlocked}
@@ -155,9 +191,12 @@ const App: React.FC = () => {
                 setScore={setScore}
                 enemiesLeft={enemiesLeft}
                 startGame={startGame}
+                startGameTesting={startGameTesting}
                 resumeGame={resumeGame}
                 level={level}
                 setLevel={setLevel}
+                levelCount={levelCount}
+                levelMap={levelMap}
                 unlockedLevel={unlockedLevel}
                 setUnlockedLevel={setUnlockedLevel}
                 isGameInProgress={isGameInProgress}

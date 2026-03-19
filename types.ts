@@ -1,4 +1,3 @@
-
 export enum Direction {
   UP = 0,
   RIGHT = 1,
@@ -14,7 +13,7 @@ export enum TileType {
   GRASS = 4,
   BASE = 5,
   BRICK_DAMAGED = 6, // 2 hits left
-  BRICK_BROKEN = 7,  // 1 hit left
+  BRICK_BROKEN = 7, // 1 hit left
   STEEL_DAMAGED_1 = 8, // 12-15 HP (Light cracks)
   STEEL_DAMAGED_2 = 9, // 8-11 HP (Medium cracks)
   STEEL_DAMAGED_3 = 10, // 1-7 HP (Heavy damage)
@@ -36,10 +35,10 @@ export interface Entity extends Position {
 }
 
 export interface Tentacle {
-  angle: number;       // Current angle relative to boss
+  angle: number; // Current angle relative to boss
   targetAngle: number; // Where it wants to point (towards player)
-  length: number;      // Current extension
-  maxLength: number;   // Max reach
+  length: number; // Current extension
+  maxLength: number; // Max reach
   wigglePhase: number; // For chaotic movement animation
 }
 
@@ -58,25 +57,25 @@ export interface Tank extends Entity {
   hitsOnPlayer?: number; // Legacy tracking
   bulletCollisionCount?: number; // Counts bullet-vs-bullet collisions
   shotgunCooldown?: number; // Cooldown for passive ability
-  
+
   // Sally (formerly Prophet) Boss Specials
   specialState?: 'IDLE' | 'PRE_CHARGE' | 'CHARGING' | 'FIRING' | 'SHOTGUN';
   specialTimer?: number;
   aimAngle?: number;
   burstCount?: number; // For shotgun bursts
-  
+
   // Sally Phases
   phase?: 1 | 2 | 3 | 4;
   petrifyTimer?: number; // Phase 2 Invulnerability (Deprecated/Modified usage)
   vx?: number; // Phase 4 Physics X
   vy?: number; // Phase 4 Physics Y
-  
+
   // New Sally Mechanics
   stunTimer?: number; // General stun (Backstab)
   backstabCooldown?: number; // Timer before she can be backstabbed again
   snakeFireTimer?: number; // Timer for snake hair firing
   moonDiscTimer?: number; // Timer for Phase 2 attack
-  
+
   // Bloodseeker Mechanics
   bloodDropTimer?: number; // Timer for dropping blood pools
   biteState?: 'IDLE' | 'PRE_BITE' | 'BITING' | 'COOLDOWN' | 'RETREAT';
@@ -112,7 +111,19 @@ export interface Explosion extends Position {
   id: string;
   stage: number; // For animation
   active: boolean;
-  type?: 'standard' | 'heal' | 'smoke' | 'impact' | 'boss_aura' | 'glitch' | 'fire' | 'laser_trace' | 'portal' | 'blood_pool' | 'saliva' | 'big_blood_pool';
+  type?:
+    | 'standard'
+    | 'heal'
+    | 'smoke'
+    | 'impact'
+    | 'boss_aura'
+    | 'glitch'
+    | 'fire'
+    | 'laser_trace'
+    | 'portal'
+    | 'blood_pool'
+    | 'saliva'
+    | 'big_blood_pool';
   vx?: number;
   vy?: number;
   color?: string;
@@ -128,3 +139,5 @@ export enum GameState {
   VICTORY = 'VICTORY',
   SHOP = 'SHOP',
 }
+
+// При создании пустого уровня вылетает - VICTORY ACHIEVED. Пофиксил так - ищи лвл в // Spawning Setup и задай параметры.

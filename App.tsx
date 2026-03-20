@@ -28,7 +28,7 @@ const App: React.FC = () => {
   const [score, setScore] = useState<number>(savedData?.score ?? 0);
   const [enemiesLeft, setEnemiesLeft] = useState<number>(20);
 
-  const [levelMap, setLevelMap] = useState<[]>(savedData?.levelMap ?? 1);
+  const [levelMap, setLevelMap] = useState<[]>(savedData?.levelMap ?? []);
   const [level, setLevel] = useState<number | string>(savedData?.unlockedLevel ?? 1); // Start at latest unlocked (Возврат к состоянию приложения)
 
   const [levelCount, setLevelCount] = useState<number>(savedData?.levelCount ?? LEVEL_COUNT); // Количество ингейм уровней (Возврат к состоянию приложения)
@@ -91,14 +91,26 @@ const App: React.FC = () => {
   };
 
   const startGameTesting = () => {
+    // написать функцию инициализации для режима.
+
+    //generateLevelMap();
+    //generateMobs();
+
     setGameSessionId((prev) => prev + 1); // добавляем +1 к количеству гейм сессий, число хранится так же как число смертей
     setGameState(GameState.PLAYING); // Start the game
     setIsGameInProgress(true);
     setPlayerHp(PLAYER_MAX_HP);
 
-    setLevel(LEVELS.length); // LEVEL_0
+    const generatedMap = generateRandomMap();
+    LEVELS[LEVELS.length - 1] = generatedMap; // некст нужно парсить из константы в локал сторадже. Тогда у нас будет доступ до карты постоянно.
+    // Сохраняем в локал сторадж. Все работает.
+    setLevel(LEVELS.length); // LEVEL_0 ПОКА ЧТО РАБОТАЕТ. НЕ ТРОГАТЬ.
+    setLevelMap(generatedMap); // Записываем карту в стейт.
+    // Эта хуйня юзлесс пушто где-то в коде лвл берется из LEVELS массива именно
+    // Я буду это рефакторить потом когда мне будет не настолько в падлу
+    // А щаспопробуем сделать пятого босса!ы
 
-    setLevelMap([2, 3]); // некст нужно парсить из константы в локал сторадже. Тогда у нас будет доступ до карты постоянно.
+    // console.log(LEVELS, 'levels in startgameTsting');
 
     // setLevelMap(levelMap) // set Level Map State
 
@@ -128,11 +140,13 @@ const App: React.FC = () => {
   };
 
   const resetProgress = () => {
+    console.log('...Reseting progress...');
     localStorage.removeItem(SAVE_KEY);
     setScore(0);
     setUnlockedLevel(1);
     setLevel(1);
     setDeathCount(0);
+    setLevelMap([]);
     setEstusUnlocked(false);
     setEstusCharges(0);
     setBoneUnlocked(false);

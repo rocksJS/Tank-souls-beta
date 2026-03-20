@@ -1,3 +1,5 @@
 renderLevelButtondwd
 
 --> spawn ENTITY --> then Spawning Map хз почему щас разберемся
+
+mapRef.current = newMap: [1,2,3]

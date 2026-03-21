@@ -380,12 +380,87 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       });
       bossSpawnedRef.current = true;
     } else if (level === 5) {
+      console.log('Spawning lvl 5...');
+      console.log('spawning lvl 5', enemiesRef.current);
+
+      // enemiesRef.current.push(ENTITY);
       // Враги на пятом уровне. Тут момент создания энтити. То есть, пушим в EnemiesRef loop.
+      enemiesRef.current.push({
+        x: (GRID_WIDTH / 2) * TILE_SIZE - BLOODSEEKER_SIZE / 2,
+        y: (GRID_HEIGHT / 2) * TILE_SIZE - BLOODSEEKER_SIZE / 2,
+        width: BLOODSEEKER_SIZE,
+        height: BLOODSEEKER_SIZE,
+        direction: Direction.DOWN,
+        speed: BLOODSEEKER_BASE_SPEED,
+        id: 'BLOODSEEKER',
+        type: 'boss',
+        cooldown: 0,
+        isDead: false,
+        hp: BLOODSEEKER_HP,
+        maxHp: BLOODSEEKER_HP,
+        introState: 'FIGHT', // Immediate fight
+        introOffsetY: 0,
+        introTimer: 0,
+        bloodDropTimer: 0,
+        biteState: 'IDLE',
+        biteTimer: 0,
+        wireHitTimer: 0,
+        wireStayTimer: 0,
+        driftVx: 0,
+        driftVy: 0,
+        driftTimer: 0,
+        retreatTimer: 0,
+        huntAngle: 0,
+        rageTimer: 0,
+        chaosTimer: 0,
+        bigPoolTimer: 0,
+        tentacles: [], // Initialize empty
+      });
       // Такой же энтити можно использовать в игре.
+
+      enemiesRef.current.push(VENOM);
+
+      // Если спавнить двоих то не багается и не зависает.
+
+      console.log('Spawned level 5', enemiesRef.current);
       // enemiesRef.current.push(ENTITY); //spawn empty ENTITY on lvl 5
 
-      // enemiesRef.current.push(VENOM);
+      // SPAWN VENOM
 
+      // enemiesRef.current.push({
+      //   x: (GRID_WIDTH / 2) * TILE_SIZE - BLOODSEEKER_SIZE / 2,
+      //   y: (GRID_HEIGHT / 2) * TILE_SIZE - BLOODSEEKER_SIZE / 2,
+      //   width: BLOODSEEKER_SIZE,
+      //   height: BLOODSEEKER_SIZE,
+      //   direction: Direction.DOWN,
+      //   speed: BLOODSEEKER_BASE_SPEED,
+      //   id: 'BLOODSEEKER',
+      //   type: 'boss',
+      //   cooldown: 0,
+      //   isDead: false,
+      //   hp: BLOODSEEKER_HP,
+      //   maxHp: BLOODSEEKER_HP,
+      //   introState: 'FIGHT', // Immediate fight
+      //   introOffsetY: 0,
+      //   introTimer: 0,
+      //   bloodDropTimer: 0,
+      //   biteState: 'IDLE',
+      //   biteTimer: 0,
+      //   wireHitTimer: 0,
+      //   wireStayTimer: 0,
+      //   driftVx: 0,
+      //   driftVy: 0,
+      //   driftTimer: 0,
+      //   retreatTimer: 0,
+      //   huntAngle: 0,
+      //   rageTimer: 0,
+      //   chaosTimer: 0,
+      //   bigPoolTimer: 0,
+      //   tentacles: [], // Initialize empty
+      // });
+
+      // Однако bloodseeker спавниться нормально..
+      //
       // Почему-то замирает уровень при создании сущности VENOM. Почему-то.
       bossSpawnedRef.current = true;
     } else {
@@ -3136,13 +3211,163 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       //VENOM RENDER
 
       if (tank.id === 'VENOM') {
-        // const cx = drawX + tank.width / 2;
-        // const cy = drawY + tank.height / 2;
-        // ctx.save();
-        // ctx.translate(cx, cy);
+        console.log('tank', tank.id, tank, 'VENOM RENDER');
+        const cx = drawX + tank.width / 2;
+        const cy = drawY + tank.height / 2;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // Rotation based on movement direction
+        let rot = 0;
+        switch (tank.direction) {
+          case Direction.RIGHT:
+            rot = 0;
+            break;
+          case Direction.DOWN:
+            rot = Math.PI / 2;
+            break;
+          case Direction.LEFT:
+            rot = Math.PI;
+            break;
+          case Direction.UP:
+            rot = -Math.PI / 2;
+            break;
+        }
+        ctx.rotate(rot);
+
+        // Intense shake if preparing bite OR if in rage mode
+        if (tank.biteState === 'PRE_BITE' || (tank.rageTimer && tank.rageTimer > 0)) {
+          // Heavier shake
+          ctx.translate((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4);
+        }
+
+        // Отрисовка тела танка BLOODSEEKERа
+        // Body (Aggressive Red Shape)
+        ctx.fillStyle = '#FFFFFF'; // Dark Red
+        // Flash white if hit OR if in Rage
+        const hitFlash = tank.wireHitTimer && tank.wireHitTimer > 0;
+        const rageFlash = tank.rageTimer && tank.rageTimer > 0;
+
+        if (hitFlash && Math.floor(Date.now() / 50) % 2 === 0) {
+          ctx.fillStyle = '#FFFFFF';
+        } else if (rageFlash) {
+          // Pulse bright red in rage
+          const pulse = Math.floor(Date.now() / 100) % 2 === 0;
+          ctx.fillStyle = pulse ? '#FF0000' : '#8B0000';
+        }
+
+        // Main body
+        ctx.fillRect(-tank.width / 2, -tank.height / 2 + 4, tank.width, tank.height - 8);
+
+        // Treads
+        ctx.fillStyle = '#220000'; // Almost black red
+        ctx.fillRect(-tank.width / 2, -tank.height / 2, tank.width, 6); // Top tread
+        ctx.fillRect(-tank.width / 2, tank.height / 2 - 6, tank.width, 6); // Bottom tread
+
+        // Spikes (Melee Weapon) on the front (Right side in local space)
+        // THESE ARE THE "GREY FANGS/TEETH"
+        ctx.fillStyle = '#C0C0C0'; // Silver
+        ctx.beginPath();
+        // Spike 1
+        ctx.moveTo(tank.width / 2, -10);
+        ctx.lineTo(tank.width / 2 + 15, -5);
+        ctx.lineTo(tank.width / 2, 0);
+        // Spike 2
+        ctx.lineTo(tank.width / 2 + 20, 0); // Big center spike
+        ctx.lineTo(tank.width / 2, 5);
+        // Spike 3
+        ctx.lineTo(tank.width / 2 + 15, 10);
+        ctx.lineTo(tank.width / 2, 10);
+        ctx.fill();
+
+        // Turret (Non-functional but visual)
+        ctx.fillStyle = '#FF0000';
+        ctx.beginPath();
+        ctx.arc(-5, 0, 12, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Blood Splatter Decor on Tank
+        ctx.fillStyle = '#500000';
+        ctx.beginPath();
+        ctx.arc(5, 5, 4, 0, Math.PI * 2);
+        ctx.arc(-8, -4, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // MOUTH ANIMATION (JAW)
+        // Positioned at front (x > tank.width/2), larger than boss
+        if (tank.biteState === 'PRE_BITE' || tank.biteState === 'BITING') {
+          const jawSize = tank.width * 1.2;
+          const jawOffset = tank.width / 2;
+          const jawOpenAmount = tank.biteState === 'PRE_BITE' ? 20 + Math.sin(Date.now() / 50) * 5 : 25; // Wiggle or Wide open
+
+          ctx.save();
+          ctx.translate(jawOffset, 0); // Move to front
+
+          // Draw Upper Jaw
+          ctx.fillStyle = '#111'; // Inner Mouth
+          ctx.strokeStyle = '#8B0000'; // Flesh Rim
+          ctx.lineWidth = 2;
+
+          ctx.save();
+          ctx.rotate(-Math.PI / 8); // Tilt up slightly
+          ctx.translate(0, -jawOpenAmount / 2);
+
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(jawSize, -10); // Long snout
+          ctx.lineTo(jawSize - 5, 5);
+          ctx.lineTo(0, 5);
+          ctx.fill();
+          ctx.stroke();
+
+          // Upper Teeth
+          ctx.fillStyle = '#EEE';
+          for (let t = 0; t < 5; t++) {
+            const tx = 10 + t * 8;
+            ctx.beginPath();
+            ctx.moveTo(tx, 5);
+            ctx.lineTo(tx + 3, 15);
+            ctx.lineTo(tx + 6, 5);
+            ctx.fill();
+          }
+          ctx.restore();
+
+          // Draw Lower Jaw
+          ctx.save();
+          ctx.rotate(Math.PI / 8); // Tilt down slightly
+          ctx.translate(0, jawOpenAmount / 2);
+
+          ctx.fillStyle = '#111';
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(jawSize, 10);
+          ctx.lineTo(jawSize - 5, -5);
+          ctx.lineTo(0, -5);
+          ctx.fill();
+          ctx.stroke();
+
+          // Lower Teeth
+          ctx.fillStyle = '#EEE';
+          for (let t = 0; t < 5; t++) {
+            const tx = 12 + t * 8;
+            ctx.beginPath();
+            ctx.moveTo(tx, -5);
+            ctx.lineTo(tx + 3, -15);
+            ctx.lineTo(tx + 6, -5);
+            ctx.fill();
+          }
+          ctx.restore();
+
+          ctx.restore();
+        }
+
+        ctx.restore();
+        return;
       }
 
       // --- BLOODSEEKER RENDER ---
+      // Если закоментить блудсикер будет с дефолтным скином.
       if (tank.id === 'BLOODSEEKER') {
         const cx = drawX + tank.width / 2;
         const cy = drawY + tank.height / 2;

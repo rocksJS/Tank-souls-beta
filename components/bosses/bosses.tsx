@@ -18,12 +18,5 @@ export const VENOM = {
   maxHp: BOSS_HP,
   // основные параметры
   cooldown: 0,
-
   introState: 'DORMANT', // Waiting for fog clear спящий мод
-  introOffsetY: 0,
-  introTimer: 0,
-  defenseBuffTimer: 0,
-  hitsOnPlayer: 0,
-  bulletCollisionCount: 0,
-  shotgunCooldown: 0,
 };

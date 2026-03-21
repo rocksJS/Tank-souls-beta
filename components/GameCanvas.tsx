@@ -69,6 +69,7 @@ import {
   BLOODSEEKER_TENTACLE_MAX_LENGTH,
 } from '../constants';
 import { Direction, GameState, Tank, TileType, Bullet, Explosion } from '../types';
+import { VENOM } from './bosses/bosses';
 
 // EMPTY ENTITY BOSS
 // template for entity
@@ -142,7 +143,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
   setScore,
   setEnemiesLeft,
   level,
-  levelMap,
   gameSessionId,
   onPlayerDeath,
   estusUnlocked,
@@ -203,18 +203,12 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
   // Helper: Reset Game
   const resetGame = useCallback(() => {
-    console.log('Reset Game to Level with reseting layout');
     // Select map
     const levelIndex = Math.max(0, Math.min(level - 1, LEVELS.length - 1));
-    const layout = LEVELS[levelIndex]; /// тут следить за индексом, вылетает ошибка на newMap. Переделать как-то
+    const layout = LEVELS[levelIndex];
 
-    console.log(levelIndex, 'levelIndex and layout');
     // Deep copy the map
     const newMap = JSON.parse(JSON.stringify(layout));
-    //    const newMap = [1,2] array, это выбор уровня, сохранять тут карту в стейт.
-    // levelMap(newMap);
-
-    // console.log(newMap, 'newMap cno ');
 
     // Initialize Tile HP Grid
     const newTileHp = Array(GRID_HEIGHT)
@@ -233,8 +227,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         setEnemiesLeft(1); // Only Sally left
       } else if (level === 4) {
         setEnemiesLeft(1); // BLOODSEEKER
-      } else if (level === 5) {
-        setEnemiesLeft(1); // BOSS
       }
 
     // Set HP values based on map
@@ -248,7 +240,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       }
     }
 
-    // Маппинг на новый мап
     mapRef.current = newMap;
     tileHpRef.current = newTileHp;
 
@@ -281,6 +272,9 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
     if (level === LEVELS.length) {
       enemiesRef.current.push(ENTITY); // create working empty level
+      // Враги на пятом уровне. Тут момент создания энтити. То есть, пушим в EnemiesRef loop.
+      // Такой же энтити можно использовать в игре.
+      // setGameState(GameState.VICTORY) Использовать позже для скрипта возрождения или победы. (checkpoint)
     }
     // Spawning Setup
     if (level === 1) {
@@ -386,41 +380,13 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       });
       bossSpawnedRef.current = true;
     } else if (level === 5) {
-      console.log('Spawning VENOM for Level 5');
-      // Вот конкретный пример когда не помешала бы типизация.
-      enemiesRef.current.push({
-        x: (GRID_WIDTH / 2) * TILE_SIZE - BLOODSEEKER_SIZE / 2,
-        y: (GRID_HEIGHT / 2) * TILE_SIZE - BLOODSEEKER_SIZE / 2,
-        width: BLOODSEEKER_SIZE * 3,
-        height: BLOODSEEKER_SIZE * 5,
-        direction: Direction.DOWN,
-        speed: BLOODSEEKER_BASE_SPEED * 2,
-        id: 'VENOM',
-        type: 'boss',
-        cooldown: 0,
-        isDead: false,
-        hp: BLOODSEEKER_HP,
-        maxHp: BLOODSEEKER_HP,
-        introState: 'DORMANT', // Immediate fight
+      // Враги на пятом уровне. Тут момент создания энтити. То есть, пушим в EnemiesRef loop.
+      // Такой же энтити можно использовать в игре.
+      // enemiesRef.current.push(ENTITY); //spawn empty ENTITY on lvl 5
 
-        introOffsetY: 0,
-        introTimer: 0,
-        bloodDropTimer: 0,
-        biteState: 'IDLE',
-        biteTimer: 0,
-        wireHitTimer: 0,
-        wireStayTimer: 0,
-        driftVx: 0,
-        driftVy: 0,
-        driftTimer: 0,
-        retreatTimer: 0,
-        huntAngle: 0,
-        rageTimer: 0,
-        chaosTimer: 0,
-        bigPoolTimer: 0,
-        tentacles: [], // Initialize empty
-      }); //spawn empty ENTITY on lvl 5
-      // Эта строчка спавнит моба в начале уровня
+      // enemiesRef.current.push(VENOM);
+
+      // Почему-то замирает уровень при создании сущности VENOM. Почему-то.
       bossSpawnedRef.current = true;
     } else {
       bossSpawnedRef.current = false;
@@ -916,88 +882,88 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     // --- Enemy AI ---
     enemiesRef.current.forEach((enemy) => {
       // Boss Logic
-
-      // --- BOSS INTRO LOGIC (Level 2 & 3) ---
       if (enemy.type === 'boss') {
-        if (enemy.introState === 'DORMANT') {
-          // Waiting for fog to clear, logic handled in checkFogOverlap
-          return;
-        }
-
-        // --- SALLY APPEARING ANIMATION (Level 2 Only uses this, Level 3 skips to Waiting) ---
-        if (enemy.introState === 'APPEARING') {
-          if (enemy.introTimer && enemy.introTimer > 0) {
-            enemy.introTimer--;
-          } else {
-            enemy.introState = 'AWAKENING';
-            enemy.introTimer = SALLY_AWAKEN_DURATION;
+        // --- BOSS INTRO LOGIC (Level 2 & 3) ---
+        if (level === 2 || level === 3) {
+          if (enemy.introState === 'DORMANT') {
+            // Waiting for fog to clear, logic handled in checkFogOverlap
+            return;
           }
-          return;
-        }
 
-        // --- AWAKENING ANIMATION ---
-        if (enemy.introState === 'AWAKENING') {
-          if (enemy.introTimer && enemy.introTimer > 0) {
-            enemy.introTimer--;
-            // Level 3 SALLY AWAKENING (Eye Glow -> Tentacle Move)
-            if (enemy.id === 'SALLY') {
-              // Phase 1 (0-2s): Eyes glow (Visuals in Draw)
-              // Phase 2 (2-4s): Tentacles move (Visuals in Draw)
+          // --- SALLY APPEARING ANIMATION (Level 2 Only uses this, Level 3 skips to Waiting) ---
+          if (enemy.introState === 'APPEARING') {
+            if (enemy.introTimer && enemy.introTimer > 0) {
+              enemy.introTimer--;
+            } else {
+              enemy.introState = 'AWAKENING';
+              enemy.introTimer = SALLY_AWAKEN_DURATION;
             }
-            // Level 2 JUGGERNAUT AWAKENING
-            else {
-              const centerX = enemy.x + enemy.width / 2;
-              const centerY = enemy.y + enemy.height / 2;
-              if (enemy.introTimer % 3 === 0) {
-                const angle = enemy.introTimer / 5;
-                const radius = 40;
-                const px = centerX + Math.cos(angle) * radius;
-                const py = centerY + Math.sin(angle) * radius;
-                explosionsRef.current.push({
-                  x: px,
-                  y: py,
-                  id: Math.random().toString(),
-                  stage: 30, // Life
-                  active: true,
-                  type: 'boss_aura',
-                  vx: (centerX - px) * 0.05, // Suck in
-                  vy: (centerY - py) * 0.05,
-                });
-              }
-              // 2. Glitch Particles (Random squares)
-              if (Math.random() > 0.5) {
-                const range = 50;
-                const gx = centerX + (Math.random() - 0.5) * range;
-                const gy = centerY + (Math.random() - 0.5) * range;
-                const colors = ['#00FF00', '#FF00FF', '#00FFFF', '#FFFFFF'];
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                explosionsRef.current.push({
-                  x: gx,
-                  y: gy,
-                  id: Math.random().toString(),
-                  stage: 5 + Math.floor(Math.random() * 5),
-                  active: true,
-                  type: 'glitch',
-                  color: color,
-                });
-              }
-            }
-          } else {
-            // Start Fight
-            enemy.introState = 'FIGHT';
-            // Impact explosion on start
-            explosionsRef.current.push({
-              x: enemy.x + enemy.width / 2,
-              y: enemy.y + enemy.height / 2,
-              id: Math.random().toString(),
-              stage: 20,
-              active: true,
-              type: 'impact',
-            });
+            return;
           }
-          return;
-        }
 
+          // --- AWAKENING ANIMATION ---
+          if (enemy.introState === 'AWAKENING') {
+            if (enemy.introTimer && enemy.introTimer > 0) {
+              enemy.introTimer--;
+              // Level 3 SALLY AWAKENING (Eye Glow -> Tentacle Move)
+              if (enemy.id === 'SALLY') {
+                // Phase 1 (0-2s): Eyes glow (Visuals in Draw)
+                // Phase 2 (2-4s): Tentacles move (Visuals in Draw)
+              }
+              // Level 2 JUGGERNAUT AWAKENING
+              else {
+                const centerX = enemy.x + enemy.width / 2;
+                const centerY = enemy.y + enemy.height / 2;
+                if (enemy.introTimer % 3 === 0) {
+                  const angle = enemy.introTimer / 5;
+                  const radius = 40;
+                  const px = centerX + Math.cos(angle) * radius;
+                  const py = centerY + Math.sin(angle) * radius;
+                  explosionsRef.current.push({
+                    x: px,
+                    y: py,
+                    id: Math.random().toString(),
+                    stage: 30, // Life
+                    active: true,
+                    type: 'boss_aura',
+                    vx: (centerX - px) * 0.05, // Suck in
+                    vy: (centerY - py) * 0.05,
+                  });
+                }
+                // 2. Glitch Particles (Random squares)
+                if (Math.random() > 0.5) {
+                  const range = 50;
+                  const gx = centerX + (Math.random() - 0.5) * range;
+                  const gy = centerY + (Math.random() - 0.5) * range;
+                  const colors = ['#00FF00', '#FF00FF', '#00FFFF', '#FFFFFF'];
+                  const color = colors[Math.floor(Math.random() * colors.length)];
+                  explosionsRef.current.push({
+                    x: gx,
+                    y: gy,
+                    id: Math.random().toString(),
+                    stage: 5 + Math.floor(Math.random() * 5),
+                    active: true,
+                    type: 'glitch',
+                    color: color,
+                  });
+                }
+              }
+            } else {
+              // Start Fight
+              enemy.introState = 'FIGHT';
+              // Impact explosion on start
+              explosionsRef.current.push({
+                x: enemy.x + enemy.width / 2,
+                y: enemy.y + enemy.height / 2,
+                id: Math.random().toString(),
+                stage: 20,
+                active: true,
+                type: 'impact',
+              });
+            }
+            return;
+          }
+        }
         // --- END BOSS INTRO ---
 
         // --- BLOODSEEKER LOGIC (Level 4) ---
@@ -2691,7 +2657,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
     // --- Check Level Clear ---
     if (enemiesToSpawnRef.current === 0 && enemiesRef.current.length === 0) {
-      setGameState(GameState.VICTORY);
+      // End of level
+      // setGameState(GameState.VICTORY);
     }
 
     setEnemiesLeft(enemiesToSpawnRef.current + enemiesRef.current.length);
@@ -2853,10 +2820,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     }
 
     // Helper to draw Medusa (Sally Boss)
-
-    // CTX отрисовка босса
     const drawMedusa = (tank: Tank) => {
-      console.log('...Drawing Medusa...');
       const cx = tank.x + tank.width / 2;
       const cy = tank.y + tank.height / 2;
       const radius = tank.width / 2;
@@ -3052,12 +3016,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     };
 
     // Helper to draw Tank
-
-    // draw Tanks loop
     const drawTank = (tank: Tank, color: string, detailColor: string = '#333') => {
-      console.log('DRAW TANK ID:', tank.id, tank, color, detailColor);
-
-      // console.log('drawing tank...', tank.type);
       let drawY = tank.y;
       let drawX = tank.x;
 
@@ -3088,12 +3047,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.globalAlpha = progress; // Fade in
         const riseOffset = (1 - progress) * 20; // Rise from below (20px)
         drawY += riseOffset;
-      }
-
-      if (tank.id === 'VENOM') {
-        // drawMedusa(tank); // получилось нарисовать шлюпальцы.
-        // ctx.fillColo = '#333';
-        tank.width = tank.width;
       }
 
       // --- SALLY SPECIAL RENDER ---
@@ -3142,8 +3095,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.restore();
 
         // Draw Head
-
-        // Вызов медузы для отрисовки босса на canvas
         drawMedusa(tank);
 
         // DRAW LASER BEAM (Needs global coords, so we draw it here after Medusa returns context)
@@ -3182,6 +3133,15 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         return;
       }
 
+      //VENOM RENDER
+
+      if (tank.id === 'VENOM') {
+        // const cx = drawX + tank.width / 2;
+        // const cy = drawY + tank.height / 2;
+        // ctx.save();
+        // ctx.translate(cx, cy);
+      }
+
       // --- BLOODSEEKER RENDER ---
       if (tank.id === 'BLOODSEEKER') {
         const cx = drawX + tank.width / 2;
@@ -3214,8 +3174,9 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
           ctx.translate((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4);
         }
 
+        // Отрисовка тела танка BLOODSEEKERа
         // Body (Aggressive Red Shape)
-        ctx.fillStyle = '#8B0000'; // Dark Red
+        ctx.fillStyle = '#FFFFFF'; // Dark Red
         // Flash white if hit OR if in Rage
         const hitFlash = tank.wireHitTimer && tank.wireHitTimer > 0;
         const rageFlash = tank.rageTimer && tank.rageTimer > 0;
@@ -3411,23 +3372,11 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
     // Draw Enemies (including Boss, but without health bar above)
     enemiesRef.current.forEach((e) => {
-      console.log(e, 'draw');
       if (e.type === 'boss') {
-        if (e.id === 'JUGG') {
-          const isEnraged = e.hp <= e.maxHp / 2;
-          const mainColor = isEnraged ? '#FF4500' : '#6e6e6e'; // Brighter red/orange when enraged
-          const detailColor = isEnraged ? '#FFFF00' : '#6e6e6e';
-          drawTank(e, mainColor, detailColor);
-        }
-
-        // VENOM RENDER (Задаём цвет)
-
-        if (e.id === 'VENOM') {
-          const isEnraged = e.hp <= e.maxHp / 2;
-          const mainColor = isEnraged ? '#FF4500' : '#bc8025'; // Brighter red/orange when enraged
-          const detailColor = isEnraged ? '#FFFF00' : '#c1b55a';
-          drawTank(e, mainColor, detailColor);
-        }
+        const isEnraged = e.hp <= e.maxHp / 2;
+        const mainColor = isEnraged ? '#FF4500' : COLORS.BOSS; // Brighter red/orange when enraged
+        const detailColor = isEnraged ? '#FFFF00' : COLORS.BOSS_DETAIL;
+        drawTank(e, mainColor, detailColor);
 
         // --- BLOODSEEKER TENTACLES RENDER ---
         if (e.id === 'BLOODSEEKER' && e.tentacles) {
@@ -3703,7 +3652,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       const barX = (CANVAS_WIDTH - barWidth) / 2;
       const barY = 30; // Top of screen
 
-      // Цвет полоски ХП
       // Determine Color based on Phase
       let fillColor = '#8B0000';
       const time = Date.now();
@@ -3738,12 +3686,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         const pulseSpeed = 200 + hpRatio * 800;
         const isRed = Math.floor(time / pulseSpeed) % 2 === 0;
         fillColor = isRed ? '#8B0000' : '#FF0000';
-      } else if (boss.id === 'VENOM') {
-        const hpRatio = boss.hp / boss.maxHp;
-        // Pulse faster when low HP
-        const pulseSpeed = 200 + hpRatio * 800;
-        const isRed = Math.floor(time / pulseSpeed) % 2 === 0;
-        fillColor = isRed ? '#800080' : '#FF0000';
       } else {
         // Juggernaut
         const isEnraged = boss.hp <= boss.maxHp / 2;
@@ -3776,7 +3718,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       let bossName = 'JUGGERNAUT';
       if (boss.id === 'SALLY') bossName = 'MEDUSA';
       else if (boss.id === 'BLOODSEEKER') bossName = 'BLOODSEEKER';
-      else if (boss.id === 'VENOM') bossName = 'VENOM';
 
       ctx.fillText(bossName, CANVAS_WIDTH / 2, barY - 10);
     }

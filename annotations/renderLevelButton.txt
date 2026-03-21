@@ -3,3 +3,10 @@ renderLevelButtondwd
 --> spawn ENTITY --> then Spawning Map хз почему щас разберемся
 
 mapRef.current = newMap: [1,2,3]
+
+    } else if (level === 5) {
+    enemiesRef.current.push(ENTITY);
+
+
+
+End of level

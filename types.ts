@@ -57,6 +57,7 @@ export interface Tank extends Entity {
   hitsOnPlayer?: number; // Legacy tracking
   bulletCollisionCount?: number; // Counts bullet-vs-bullet collisions
   shotgunCooldown?: number; // Cooldown for passive ability
+  invisible?: boolean;
 
   // Sally (formerly Prophet) Boss Specials
   specialState?: 'IDLE' | 'PRE_CHARGE' | 'CHARGING' | 'FIRING' | 'SHOTGUN';

@@ -227,6 +227,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         setEnemiesLeft(1); // Only Sally left
       } else if (level === 4) {
         setEnemiesLeft(1); // BLOODSEEKER
+      } else if (level >= 5) {
+        setEnemiesLeft(1); // BLOODSEEKER
       }
 
     // Set HP values based on map
@@ -398,7 +400,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         isDead: false,
         hp: BLOODSEEKER_HP,
         maxHp: BLOODSEEKER_HP,
-        introState: 'FIGHT', // Immediate fight
+        introState: 'DORMANT', // Immediate fight
         introOffsetY: 0,
         introTimer: 0,
         bloodDropTimer: 0,
@@ -418,7 +420,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       });
       // Такой же энтити можно использовать в игре.
 
-      enemiesRef.current.push(VENOM);
+      // enemiesRef.current.push(VENOM);
 
       // Если спавнить двоих то не багается и не зависает.
 
@@ -959,7 +961,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       // Boss Logic
       if (enemy.type === 'boss') {
         // --- BOSS INTRO LOGIC (Level 2 & 3) ---
-        if (level === 2 || level === 3) {
+        if (level === 2 || level === 3 || level === 4 || level === 5) {
           if (enemy.introState === 'DORMANT') {
             // Waiting for fog to clear, logic handled in checkFogOverlap
             return;
@@ -986,7 +988,44 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
                 // Phase 2 (2-4s): Tentacles move (Visuals in Draw)
               }
               // Level 2 JUGGERNAUT AWAKENING
-              else {
+
+              if (enemy.id === 'JUGGERNAUT') {
+                const centerX = enemy.x + enemy.width / 2;
+                const centerY = enemy.y + enemy.height / 2;
+                if (enemy.introTimer % 3 === 0) {
+                  const angle = enemy.introTimer / 5;
+                  const radius = 40;
+                  const px = centerX + Math.cos(angle) * radius;
+                  const py = centerY + Math.sin(angle) * radius;
+                  explosionsRef.current.push({
+                    x: px,
+                    y: py,
+                    id: Math.random().toString(),
+                    stage: 30, // Life
+                    active: true,
+                    type: 'boss_aura',
+                    vx: (centerX - px) * 0.05, // Suck in
+                    vy: (centerY - py) * 0.05,
+                  });
+                }
+                // 2. Glitch Particles (Random squares)
+                if (Math.random() > 0.5) {
+                  const range = 50;
+                  const gx = centerX + (Math.random() - 0.5) * range;
+                  const gy = centerY + (Math.random() - 0.5) * range;
+                  const colors = ['#00FF00', '#FF00FF', '#00FFFF', '#FFFFFF'];
+                  const color = colors[Math.floor(Math.random() * colors.length)];
+                  explosionsRef.current.push({
+                    x: gx,
+                    y: gy,
+                    id: Math.random().toString(),
+                    stage: 5 + Math.floor(Math.random() * 5),
+                    active: true,
+                    type: 'glitch',
+                    color: color,
+                  });
+                }
+              } else {
                 const centerX = enemy.x + enemy.width / 2;
                 const centerY = enemy.y + enemy.height / 2;
                 if (enemy.introTimer % 3 === 0) {
@@ -3943,6 +3982,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       let bossName = 'JUGGERNAUT';
       if (boss.id === 'SALLY') bossName = 'MEDUSA';
       else if (boss.id === 'BLOODSEEKER') bossName = 'BLOODSEEKER';
+      else if (boss.id === 'VENOM') bossName = 'VENOM';
 
       ctx.fillText(bossName, CANVAS_WIDTH / 2, barY - 10);
     }

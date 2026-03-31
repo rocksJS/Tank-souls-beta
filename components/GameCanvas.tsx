@@ -382,45 +382,45 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       });
       bossSpawnedRef.current = true;
     } else if (level === 5) {
-      console.log('Spawning lvl 5...');
-      console.log('spawning lvl 5', enemiesRef.current);
+      // console.log('Spawning lvl 5...');
+      // console.log('spawning lvl 5', enemiesRef.current);
 
-      // enemiesRef.current.push(ENTITY);
-      // Враги на пятом уровне. Тут момент создания энтити. То есть, пушим в EnemiesRef loop.
-      enemiesRef.current.push({
-        x: (GRID_WIDTH / 2) * TILE_SIZE - BLOODSEEKER_SIZE / 2,
-        y: (GRID_HEIGHT / 2) * TILE_SIZE - BLOODSEEKER_SIZE / 2,
-        width: BLOODSEEKER_SIZE,
-        height: BLOODSEEKER_SIZE,
-        direction: Direction.DOWN,
-        speed: BLOODSEEKER_BASE_SPEED,
-        id: 'BLOODSEEKER',
-        type: 'boss',
-        cooldown: 0,
-        isDead: false,
-        hp: BLOODSEEKER_HP,
-        maxHp: BLOODSEEKER_HP,
-        introState: 'DORMANT', // Immediate fight
-        introOffsetY: 0,
-        introTimer: 0,
-        bloodDropTimer: 0,
-        biteState: 'IDLE',
-        biteTimer: 0,
-        wireHitTimer: 0,
-        wireStayTimer: 0,
-        driftVx: 0,
-        driftVy: 0,
-        driftTimer: 0,
-        retreatTimer: 0,
-        huntAngle: 0,
-        rageTimer: 0,
-        chaosTimer: 0,
-        bigPoolTimer: 0,
-        tentacles: [], // Initialize empty
-      });
+      // // enemiesRef.current.push(ENTITY);
+      // // Враги на пятом уровне. Тут момент создания энтити. То есть, пушим в EnemiesRef loop.
+      // enemiesRef.current.push({
+      //   x: (GRID_WIDTH / 2) * TILE_SIZE - BLOODSEEKER_SIZE / 2,
+      //   y: (GRID_HEIGHT / 2) * TILE_SIZE - BLOODSEEKER_SIZE / 2,
+      //   width: BLOODSEEKER_SIZE,
+      //   height: BLOODSEEKER_SIZE,
+      //   direction: Direction.DOWN,
+      //   speed: BLOODSEEKER_BASE_SPEED,
+      //   id: 'BLOODSEEKER',
+      //   type: 'boss',
+      //   cooldown: 0,
+      //   isDead: false,
+      //   hp: BLOODSEEKER_HP,
+      //   maxHp: BLOODSEEKER_HP,
+      //   introState: 'DORMANT', // Immediate fight
+      //   introOffsetY: 0,
+      //   introTimer: 0,
+      //   bloodDropTimer: 0,
+      //   biteState: 'IDLE',
+      //   biteTimer: 0,
+      //   wireHitTimer: 0,
+      //   wireStayTimer: 0,
+      //   driftVx: 0,
+      //   driftVy: 0,
+      //   driftTimer: 0,
+      //   retreatTimer: 0,
+      //   huntAngle: 0,
+      //   rageTimer: 0,
+      //   chaosTimer: 0,
+      //   bigPoolTimer: 0,
+      //   tentacles: [], // Initialize empty
+      // });
       // Такой же энтити можно использовать в игре.
 
-      // enemiesRef.current.push(VENOM);
+      enemiesRef.current.push(VENOM);
 
       // Если спавнить двоих то не багается и не зависает.
 
@@ -3275,6 +3275,59 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         }
         ctx.rotate(rot);
 
+        // Отрисовка тела "черной дыры"
+
+        // Центр (сингулярность)
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.arc(0, 0, tank.width / 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Легкое свечение (вместо сложного градиента — безопаснее)
+        ctx.fillStyle = 'rgba(80, 0, 120, 0.25)';
+        ctx.beginPath();
+        ctx.arc(0, 0, tank.width / 1.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Аккреционный диск (как "гусеницы", но эллипсом)
+        const time = Date.now() / 400;
+        const pulse = Math.sin(time) * 0.2 + 1;
+
+        // Верхняя часть диска
+        ctx.fillStyle = 'rgba(255, 80, 0, 0.6)';
+        ctx.beginPath();
+        ctx.ellipse(
+          0,
+          0,
+          (tank.width / 1.1) * pulse,
+          tank.height / 3,
+          time, // вращение
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+
+        // Нижняя часть диска (чуть темнее для глубины)
+        ctx.fillStyle = 'rgba(120, 0, 60, 0.5)';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, (tank.width / 1.3) * pulse, tank.height / 4, time, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Внутреннее "засасывание" (простые линии, как spikes)
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const angle = (i / 6) * Math.PI * 2 + time;
+          const x1 = Math.cos(angle) * (tank.width / 2);
+          const y1 = Math.sin(angle) * (tank.height / 2);
+
+          ctx.moveTo(0, 0);
+          ctx.lineTo(x1, y1);
+        }
+        ctx.stroke();
+
         // Intense shake if preparing bite OR if in rage mode
         if (tank.biteState === 'PRE_BITE' || (tank.rageTimer && tank.rageTimer > 0)) {
           // Heavier shake
@@ -3283,42 +3336,43 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
         // Отрисовка тела танка BLOODSEEKERа
         // Body (Aggressive Red Shape)
-        ctx.fillStyle = '#FFFFFF'; // Dark Red
-        // Flash white if hit OR if in Rage
-        const hitFlash = tank.wireHitTimer && tank.wireHitTimer > 0;
-        const rageFlash = tank.rageTimer && tank.rageTimer > 0;
+        ctx.fillStyle = '#481820'; // Dark Red
 
-        if (hitFlash && Math.floor(Date.now() / 50) % 2 === 0) {
-          ctx.fillStyle = '#FFFFFF';
-        } else if (rageFlash) {
-          // Pulse bright red in rage
-          const pulse = Math.floor(Date.now() / 100) % 2 === 0;
-          ctx.fillStyle = pulse ? '#FF0000' : '#8B0000';
-        }
+        // // Flash white if hit OR if in Rage
+        // const hitFlash = tank.wireHitTimer && tank.wireHitTimer > 0;
+        // const rageFlash = tank.rageTimer && tank.rageTimer > 0;
 
-        // Main body
-        ctx.fillRect(-tank.width / 2, -tank.height / 2 + 4, tank.width, tank.height - 8);
+        // if (hitFlash && Math.floor(Date.now() / 50) % 2 === 0) {
+        //   ctx.fillStyle = '#FFFFFF';
+        // } else if (rageFlash) {
+        //   // Pulse bright red in rage
+        //   const pulse = Math.floor(Date.now() / 100) % 2 === 0;
+        //   ctx.fillStyle = pulse ? '#FF0000' : '#8B0000';
+        // }
 
-        // Treads
-        ctx.fillStyle = '#220000'; // Almost black red
-        ctx.fillRect(-tank.width / 2, -tank.height / 2, tank.width, 6); // Top tread
-        ctx.fillRect(-tank.width / 2, tank.height / 2 - 6, tank.width, 6); // Bottom tread
+        // // Main body
+        // ctx.fillRect(-tank.width / 2, -tank.height / 2 + 4, tank.width, tank.height - 8);
 
-        // Spikes (Melee Weapon) on the front (Right side in local space)
-        // THESE ARE THE "GREY FANGS/TEETH"
-        ctx.fillStyle = '#C0C0C0'; // Silver
-        ctx.beginPath();
+        // // Treads
+        // ctx.fillStyle = '#220000'; // Almost black red
+        // ctx.fillRect(-tank.width / 2, -tank.height / 2, tank.width, 6); // Top tread
+        // ctx.fillRect(-tank.width / 2, tank.height / 2 - 6, tank.width, 6); // Bottom tread
+
+        // // Spikes (Melee Weapon) on the front (Right side in local space)
+        // // THESE ARE THE "GREY FANGS/TEETH"
+        // ctx.fillStyle = '#C0C0C0'; // Silver
+        // ctx.beginPath();
         // Spike 1
-        ctx.moveTo(tank.width / 2, -10);
-        ctx.lineTo(tank.width / 2 + 15, -5);
-        ctx.lineTo(tank.width / 2, 0);
-        // Spike 2
-        ctx.lineTo(tank.width / 2 + 20, 0); // Big center spike
-        ctx.lineTo(tank.width / 2, 5);
-        // Spike 3
-        ctx.lineTo(tank.width / 2 + 15, 10);
-        ctx.lineTo(tank.width / 2, 10);
-        ctx.fill();
+        // ctx.moveTo(tank.width / 2, -10);
+        // ctx.lineTo(tank.width / 2 + 15, -5);
+        // ctx.lineTo(tank.width / 2, 0);
+        // // Spike 2
+        // ctx.lineTo(tank.width / 2 + 20, 0); // Big center spike
+        // ctx.lineTo(tank.width / 2, 5);
+        // // Spike 3
+        // ctx.lineTo(tank.width / 2 + 15, 10);
+        // ctx.lineTo(tank.width / 2, 10);
+        // ctx.fill();
 
         // Turret (Non-functional but visual)
         ctx.fillStyle = '#FF0000';

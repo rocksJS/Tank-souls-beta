@@ -4,6 +4,9 @@ Tank Souls - souls-like arcade shooter. The game features is boss fights, there 
 
 <div align="center">
 <img alt="GHBanner" src="https://i.imgur.com/XEYuyXE.png" />
+<img alt="GHBanner" src="https://i.imgur.com/zyOFTrk.png" />
+<img alt="GHBanner" src="https://i.imgur.com/W1YV7hy.png" />
+   
 </div>
 
 ## How to Run Locally

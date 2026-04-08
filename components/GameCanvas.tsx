@@ -3257,6 +3257,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.save();
         ctx.translate(cx, cy);
 
+        // я тут.
+        // пора оптимизировать танчики под мобилы ахах
         // Rotation based on movement direction
         let rot = 0;
         switch (tank.direction) {

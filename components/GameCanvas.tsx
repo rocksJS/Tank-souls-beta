@@ -3275,6 +3275,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         }
         ctx.rotate(rot);
 
+        // Далее идёт функция отрисовки "черной дыры", chatGPT
+        // ***********************
         // Отрисовка тела "черной дыры"
 
         // Центр (сингулярность)
@@ -3327,6 +3329,9 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
           ctx.lineTo(x1, y1);
         }
         ctx.stroke();
+
+        //********************************************* */
+        // Тут заканчивается функция отрисовки "черной дыры", chatGPT
 
         // Intense shake if preparing bite OR if in rage mode
         if (tank.biteState === 'PRE_BITE' || (tank.rageTimer && tank.rageTimer > 0)) {

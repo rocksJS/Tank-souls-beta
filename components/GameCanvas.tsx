@@ -509,24 +509,21 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       // Estus Healing Logic (Updated for Infinite Use if Unlocked and Bone Active)
       // Эстус логика
       if (e.code === 'KeyE' && gameState === GameState.PLAYING) {
-        if (estusUnlocked) {
-          const player = playerRef.current;
-          if (!player.isDead && player.hp < player.maxHp) {
-            let healed = false;
-            if (infiniteEstus) {
-              // Infinite mode: No charge usage
-              player.hp += 1;
-              healed = true;
-            } else if (estusChargesRef.current > 0) {
-              // Normal mode: Consume charge
-              player.hp += 1;
-              setEstusCharges((prev) => prev - 1);
-              estusChargesRef.current -= 1; // Sync local ref immediately
-              healed = true;
-            }
+        console.log(estusCharges, 'estusCharges in press E');
 
-            if (healed) {
-              setPlayerHp(player.hp); // Sync UI
+        if (estusUnlocked && estusCharges > 0) {
+          setEstusCharges((prev) => prev - 1);
+          const player = playerRef.current;
+
+          if (!player.isDead && player.hp) {
+            if (infiniteEstus || estusCharges > 0) {
+              player.hp += 1;
+
+              if (!infiniteEstus) {
+              }
+
+              setPlayerHp(player.hp);
+
               explosionsRef.current.push({
                 x: player.x,
                 y: player.y,

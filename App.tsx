@@ -42,7 +42,7 @@ const App: React.FC = () => {
 
   // Shop Items State
   const [estusUnlocked, setEstusUnlocked] = useState<boolean>(savedData?.estusUnlocked ?? false);
-  const [estusCharges, setEstusCharges] = useState<number>(0);
+  const [estusCharges, setEstusCharges] = useState<number>(3);
   const [boneUnlocked, setBoneUnlocked] = useState<boolean>(savedData?.boneUnlocked ?? false);
 
   // --- Persistence Effect ---
@@ -81,10 +81,13 @@ const App: React.FC = () => {
     setEnemiesLeft(20);
     setIsGameInProgress(true);
     setPlayerHp(PLAYER_MAX_HP);
+    setEstusCharges(3);
+    console.log('старт гейм');
 
     // Reset Estus charges on level start if unlocked
     if (estusUnlocked) {
       setEstusCharges(3);
+      console.log(estusCharges, 'estus Charges in estusUnlocked()');
     } else {
       setEstusCharges(0);
     }
@@ -95,6 +98,7 @@ const App: React.FC = () => {
 
     //generateLevelMap();
     //generateMobs();
+    console.log('старт гейм');
 
     setGameSessionId((prev) => prev + 1); // добавляем +1 к количеству гейм сессий, число хранится так же как число смертей
     setGameState(GameState.PLAYING); // Start the game
@@ -224,7 +228,14 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          <Sidebar enemiesLeft={enemiesLeft} score={score} level={level} setGameState={setGameState} playerHp={playerHp} />
+          <Sidebar
+            enemiesLeft={enemiesLeft}
+            score={score}
+            level={level}
+            setGameState={setGameState}
+            playerHp={playerHp}
+            estusCharges={estusCharges}
+          />
         </div>
 
         {/* Decorative details */}

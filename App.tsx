@@ -122,12 +122,12 @@ const App: React.FC = () => {
     // setIsGameInProgress(true);
     // setPlayerHp(PLAYER_MAX_HP);
 
-    // // Reset Estus charges on level start if unlocked
-    // if (estusUnlocked) {
-    //   setEstusCharges(3);
-    // } else {
-    //   setEstusCharges(0);
-    // }
+    // Reset Estus charges on level start if unlocked
+    if (estusUnlocked) {
+      setEstusCharges(3);
+    } else {
+      setEstusCharges(0);
+    }
   };
 
   const resumeGame = () => {

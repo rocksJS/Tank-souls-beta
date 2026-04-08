@@ -7,9 +7,10 @@ interface SidebarProps {
   level: number;
   setGameState: (state: GameState) => void;
   playerHp: number;
+  estusCharges: number;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ enemiesLeft, score, level, setGameState, playerHp }) => {
+const Sidebar: React.FC<SidebarProps> = ({ enemiesLeft, score, level, setGameState, playerHp, estusCharges }) => {
   return (
     <div className="bg-[#1a1a1a] flex flex-col justify-between font-mono border-l-4 border-[#333] min-w-[200px]">
       {/* Top Section: Icons + HP */}
@@ -32,13 +33,22 @@ const Sidebar: React.FC<SidebarProps> = ({ enemiesLeft, score, level, setGameSta
         </div>
 
         {/* Player HP */}
+
         <div className="text-gray-400 font-bold text-xl flex flex-col items-start w-full pl-1">
-          <div className="flex items-center">
+          <div className="flex items-center pl-2">
             {/* Heart Icon */}
             <svg viewBox="0 0 24 24" className="w-6 h-6 mr-2 fill-red-600 drop-shadow-[0_0_5px_rgba(220,20,60,0.6)]">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
             <span className="text-red-100">{playerHp}</span>
+
+            <div className="w-full pl-3">
+              <svg viewBox="0 0 24 24" className="w-6 h-6 mr-2 fill-orange-500 drop-shadow-[0_0_6px_rgba(255,140,0,0.8)]">
+                <path d="M10 2h4v2l1 2v3.5c2.5 1.5 4 3.5 4 6 0 3.5-3 6.5-7 6.5s-7-3-7-6.5c0-2.5 1.5-4.5 4-6V6l1-2V2zm2 6c-2.5 0-4.5 2-4.5 4.5S9.5 17 12 17s4.5-2 4.5-4.5S14.5 8 12 8z" />
+              </svg>
+              <span className="text-red-100">{estusCharges}</span>
+              {console.log(estusCharges, 'estus Charges in sidebar')}
+            </div>
           </div>
         </div>
       </div>

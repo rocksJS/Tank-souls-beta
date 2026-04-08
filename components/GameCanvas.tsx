@@ -507,6 +507,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       }
 
       // Estus Healing Logic (Updated for Infinite Use if Unlocked and Bone Active)
+      // Эстус логика
       if (e.code === 'KeyE' && gameState === GameState.PLAYING) {
         if (estusUnlocked) {
           const player = playerRef.current;

@@ -424,7 +424,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
       // Если спавнить двоих то не багается и не зависает.
 
-      console.log('Spawned level 5', enemiesRef.current);
+      // console.log('Spawned level 5', enemiesRef.current);
       // enemiesRef.current.push(ENTITY); //spawn empty ENTITY on lvl 5
 
       // SPAWN VENOM
@@ -509,7 +509,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       // Estus Healing Logic (Updated for Infinite Use if Unlocked and Bone Active)
       // Эстус логика
       if (e.code === 'KeyE' && gameState === GameState.PLAYING) {
-        console.log(estusCharges, 'estusCharges in press E');
+        // console.log(estusCharges, 'estusCharges in press E');
 
         if (estusUnlocked && estusCharges > 0) {
           setEstusCharges((prev) => prev - 1);
@@ -3248,7 +3248,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       //VENOM RENDER
 
       if (tank.id === 'VENOM') {
-        console.log('tank', tank.id, tank, 'VENOM RENDER');
+        // console.log('tank', tank.id, tank, 'VENOM RENDER');
         const cx = drawX + tank.width / 2;
         const cy = drawY + tank.height / 2;
 

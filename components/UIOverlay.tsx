@@ -120,9 +120,9 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
   // Helper to render level buttons
   const renderLevelButton = (levelId: number, roman: string) => {
     if (levelId === 1) {
-      console.log('we press F');
+      // console.log('we press F');
     }
-    console.log('rendering level...', levelId, roman);
+    // console.log('rendering level...', levelId, roman);
     const isUnlocked = levelId <= unlockedLevel;
     const isCompleted = levelId < unlockedLevel;
     const isSelected = level === levelId;
@@ -140,7 +140,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
     }
 
     if (levelId === 1) {
-      console.log(levelId, level);
+      // console.log(levelId, level);
       return (
         <button onClick={() => setLevel(1)} className={`${baseClasses}`}>
           <span
@@ -334,7 +334,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
                   // Square NES Toggle
                   <div
                     onClick={() => {
-                      console.log(levelCount, 'levelCounteerr');
+                      // console.log(levelCount, 'levelCounteerr');
                       // Toggle behavior: If >=4 (ON) -> Set to 1 (OFF). If <4 (OFF) -> Set to 4 (ON).
                       if (unlockedLevel >= 5) {
                         if (setUnlockedLevel) setUnlockedLevel(1); // Lock           back to 1

@@ -42,13 +42,10 @@ const Sidebar: React.FC<SidebarProps> = ({ enemiesLeft, score, level, setGameSta
             </svg>
             <span className="text-red-100">{playerHp}</span>
 
-            <div className="w-full pl-3">
-              <svg viewBox="0 0 24 24" className="w-6 h-6 mr-2 fill-orange-500 drop-shadow-[0_0_6px_rgba(255,140,0,0.8)]">
-                <path d="M10 2h4v2l1 2v3.5c2.5 1.5 4 3.5 4 6 0 3.5-3 6.5-7 6.5s-7-3-7-6.5c0-2.5 1.5-4.5 4-6V6l1-2V2zm2 6c-2.5 0-4.5 2-4.5 4.5S9.5 17 12 17s4.5-2 4.5-4.5S14.5 8 12 8z" />
-              </svg>
-              <span className="text-red-100">{estusCharges ?? 0}</span>
-              {console.log(estusCharges, 'estus Charges in sidebar')}
-            </div>
+            <svg viewBox="0 0 24 24" className="w-6 h-6 mr-2 fill-orange-500 drop-shadow-[0_0_6px_rgba(255,140,0,0.8)] ml-3">
+              <path d="M10 2h4v2l1 2v3.5c2.5 1.5 4 3.5 4 6 0 3.5-3 6.5-7 6.5s-7-3-7-6.5c0-2.5 1.5-4.5 4-6V6l1-2V2zm2 6c-2.5 0-4.5 2-4.5 4.5S9.5 17 12 17s4.5-2 4.5-4.5S14.5 8 12 8z" />
+            </svg>
+            <span className="text-red-100">{estusCharges ?? 0}</span>
           </div>
         </div>
       </div>

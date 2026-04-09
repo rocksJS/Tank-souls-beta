@@ -82,12 +82,12 @@ const App: React.FC = () => {
     setIsGameInProgress(true);
     setPlayerHp(PLAYER_MAX_HP);
     setEstusCharges(3);
-    console.log('старт гейм');
+    // console.log('старт гейм');
 
     // Reset Estus charges on level start if unlocked
     if (estusUnlocked) {
       setEstusCharges(3);
-      console.log(estusCharges, 'estus Charges in estusUnlocked()');
+      // console.log(estusCharges, 'estus Charges in estusUnlocked()');
     } else {
       setEstusCharges(0);
     }
@@ -98,7 +98,7 @@ const App: React.FC = () => {
 
     //generateLevelMap();
     //generateMobs();
-    console.log('старт гейм');
+    // console.log('старт гейм стори');
 
     setGameSessionId((prev) => prev + 1); // добавляем +1 к количеству гейм сессий, число хранится так же как число смертей
     setGameState(GameState.PLAYING); // Start the game
@@ -144,7 +144,7 @@ const App: React.FC = () => {
   };
 
   const resetProgress = () => {
-    console.log('...Reseting progress...');
+    // console.log('...Reseting progress...');
     localStorage.removeItem(SAVE_KEY);
     setScore(0);
     setUnlockedLevel(1);

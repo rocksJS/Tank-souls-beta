@@ -264,7 +264,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       invulnerabilityTimer: 0,
     };
     // Sync UI HP
-    setPlayerHp(PLAYER_MAX_HP);
+    // Синхронизация HP в сайдбаре
+    setPlayerHp(playerRef.current.hp);
 
     enemiesRef.current = [];
     bulletsRef.current = [];
@@ -509,32 +510,50 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       // Estus Healing Logic (Updated for Infinite Use if Unlocked and Bone Active)
       // Эстус логика
       if (e.code === 'KeyE' && gameState === GameState.PLAYING) {
+        // estusChargesRef и estusCharges разные каунтеры, синхронизируются где-то в коде для сайдбара
+
         // console.log(estusCharges, 'estusCharges in press E');
+        // const player = playerRef.current;
 
-        if (estusUnlocked && estusCharges > 0) {
+        // console.log('hp before heal', playerRef.current.hp);
+        console.log('estus charges Ref =>', estusChargesRef.current);
+
+        if (estusChargesRef.current > 0 && estusUnlocked && !playerRef.current.isDead && playerRef.current.hp < 3) {
           setEstusCharges((prev) => prev - 1);
-          const player = playerRef.current;
 
-          if (!player.isDead && player.hp) {
-            if (infiniteEstus || estusCharges > 0) {
-              player.hp += 1;
+          playerRef.current.hp++;
+          setPlayerHp(playerRef.current.hp);
 
-              if (!infiniteEstus) {
-              }
-
-              setPlayerHp(player.hp);
-
-              explosionsRef.current.push({
-                x: player.x,
-                y: player.y,
-                id: Math.random().toString(),
-                stage: 20,
-                active: true,
-                type: 'heal',
-              });
-            }
-          }
+          console.log('estus charges (real) =>', estusChargesRef.current);
         }
+        // if (!estusCharges) {
+        //   return
+        // }
+
+        // if (estusUnlocked && estusCharges > 0) {
+        //   setEstusCharges((prev) => prev - 1);
+
+        //   if (!player.isDead && player.hp) {
+        //     console.log(player.hp, 'playerHP when press E');
+        //     if (infiniteEstus || (estusCharges > 0 && player.hp < 3)) {
+        //       player.hp += 1;
+
+        //       if (!infiniteEstus) {
+        //       }
+
+        //       setPlayerHp(player.hp);
+
+        //       explosionsRef.current.push({
+        //         x: player.x,
+        //         y: player.y,
+        //         id: Math.random().toString(),
+        //         stage: 20,
+        //         active: true,
+        //         type: 'heal',
+        //       });
+        //     }
+        //   }
+        // }
       }
     };
     const handleKeyUp = (e: KeyboardEvent) => {

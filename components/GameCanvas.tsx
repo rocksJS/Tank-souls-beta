@@ -275,13 +275,14 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
     if (level === LEVELS.length) {
       enemiesRef.current.push(ENTITY); // create working empty level
+      console.log('Spawned Entity');
       // Враги на пятом уровне. Тут момент создания энтити. То есть, пушим в EnemiesRef loop.
       // Такой же энтити можно использовать в игре.
       // setGameState(GameState.VICTORY) Использовать позже для скрипта возрождения или победы. (checkpoint)
     }
     // Spawning Setup
     if (level === 1) {
-      enemiesToSpawnRef.current = 20;
+      enemiesToSpawnRef.current = 4;
     } else {
       enemiesToSpawnRef.current = 0;
     }
@@ -510,6 +511,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       // Estus Healing Logic (Updated for Infinite Use if Unlocked and Bone Active)
       // Эстус логика
       if (e.code === 'KeyE' && gameState === GameState.PLAYING) {
+        // 5000000$
+        //
         // estusChargesRef и estusCharges разные каунтеры, синхронизируются где-то в коде для сайдбара
 
         // console.log(estusCharges, 'estusCharges in press E');
@@ -2790,7 +2793,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     // --- Check Level Clear ---
     if (enemiesToSpawnRef.current === 0 && enemiesRef.current.length === 0) {
       // End of level
-      // setGameState(GameState.VICTORY);
+      // fixed bug
+      setGameState(GameState.VICTORY);
     }
 
     setEnemiesLeft(enemiesToSpawnRef.current + enemiesRef.current.length);

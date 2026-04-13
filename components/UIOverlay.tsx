@@ -115,7 +115,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
 
   const isBoneActive = boneUnlocked && unlockedLevel >= 4; // Max unlocked needed for infinite
   const ESTUS_PRICE = isBoneActive ? 0 : 20;
-  const DARKSIGN_PRICE = 999;
+  const DARKSIGN_PRICE = 0;
 
   // Helper to render level buttons
   const renderLevelButton = (levelId: number, roman: string) => {
@@ -240,9 +240,9 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
             )}
           </div>
 
-          <div className="text-xs text-gray-500 tracking-widest uppercase animate-pulse mt-8 pointer-events-auto">
+          {/* <div className="text-xs text-gray-500 tracking-widest uppercase animate-pulse mt-8 pointer-events-auto">
             Press [SPACE] to {isGameInProgress ? 'Resume' : 'Start'}
-          </div>
+          </div> */}
         </>
       )}
 

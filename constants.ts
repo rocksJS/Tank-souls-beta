@@ -8,9 +8,11 @@ export const CANVAS_HEIGHT = GRID_HEIGHT * TILE_SIZE;
 
 export const PLAYER_SPEED = 2;
 export const ENEMY_SPEED = 0.375;
-// Атакспид ахахаха.
+// Атакспид ахахаха. ( attack speed)
 
 // Поменял геймплей одним обновлением.
+
+// можно сделать как настройку easy / realistic hard
 export const PLAYER_BULLET_SPEED = 33.75;
 export const ENEMY_BULLET_SPEED = 33.25;
 export const TANK_SIZE = 28;

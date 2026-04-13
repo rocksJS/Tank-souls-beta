@@ -543,6 +543,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
         //       setPlayerHp(player.hp);
 
+        // Healing particle
         //       explosionsRef.current.push({
         //         x: player.x,
         //         y: player.y,

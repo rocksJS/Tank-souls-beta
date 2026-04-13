@@ -158,7 +158,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center pt-32 pb-12">
+    <div className="min-h-screen flex flex-col items-center justify-center pt-32 pb-12">
       <div className="relative">
         <div className="relative border-[4px] border-[#333] rounded shadow-[0_0_50px_rgba(0,0,0,0.8)] bg-[#1a1a1a] flex">
           {/* TV Scanline effect (subtler for Tank Souls) */}
@@ -238,10 +238,15 @@ const App: React.FC = () => {
           />
         </div>
 
-        {/* Decorative details */}
-        <div className="absolute -bottom-12 left-0 w-full flex justify-center text-[#444] font-gothic text-xl opacity-50">
-          PREPARE TO DIE EDITION
-        </div>
+        {/* Decorative details    PREPARE TO DIE EDITION */}
+        <div className="absolute -bottom-12 left-0 w-full flex justify-center text-[#444] font-gothic text-xl opacity-50"></div>
+      </div>
+      <div
+        className={`text-xs text-gray-500 tracking-widest uppercase animate-pulse mt-8 pointer-events-auto ${
+          isGameInProgress ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
+        {isGameInProgress ? '​ ​' : 'Press [SPACE] to Start'}
       </div>
     </div>
   );

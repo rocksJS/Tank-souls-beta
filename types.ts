@@ -19,6 +19,7 @@ export enum TileType {
   STEEL_DAMAGED_3 = 10, // 1-7 HP (Heavy damage)
   FOG = 11, // New Fog Block
   WIRE = 12, // Barbed Wire (Kills player)
+  ENDLESS_NEXT_LEVEL_BLOCK_TRIGGER = 13, // Endless Mode Next Level Block (для прохождения следующего уровня в бесконечном режиме)
 }
 
 export interface Position {

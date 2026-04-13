@@ -67,7 +67,8 @@ const App: React.FC = () => {
     if (gameState === GameState.VICTORY) {
       setIsGameInProgress(false);
       // Allow unlocking up to Level 4
-      if (level === unlockedLevel && level < 4) {
+      // Removed bug where level 4 was not unlocked
+      if (level === unlockedLevel && level) {
         setUnlockedLevel((prev) => prev + 1);
       }
     } else if (gameState === GameState.GAME_OVER) {

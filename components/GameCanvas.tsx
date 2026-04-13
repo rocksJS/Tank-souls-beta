@@ -706,6 +706,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
   // Helper to check if player touched wire
   const checkWireDeath = (player: Tank) => {
+    // console.log('checkWire');
     if (godModeRef.current) return false;
 
     const startX = Math.floor(player.x / TILE_SIZE);
@@ -722,6 +723,27 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         }
       }
     }
+    return false;
+  };
+
+  const checkFinishTrigger = (player: Tank) => {
+    if (godModeRef.current) return false;
+
+    const startX = Math.floor(player.x / TILE_SIZE);
+    const endX = Math.floor((player.x + player.width - 0.1) / TILE_SIZE);
+    const startY = Math.floor(player.y / TILE_SIZE);
+    const endY = Math.floor((player.y + player.height - 0.1) / TILE_SIZE);
+
+    for (let y = startY; y <= endY; y++) {
+      for (let x = startX; x <= endX; x++) {
+        if (y >= 0 && y < GRID_HEIGHT && x >= 0 && x < GRID_WIDTH) {
+          if (mapRef.current[y][x] === TileType.ENDLESS_NEXT_LEVEL_BLOCK_TRIGGER) {
+            return true;
+          }
+        }
+      }
+    }
+
     return false;
   };
 
@@ -901,6 +923,12 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
         const nextX = player.x + dx;
         const nextY = player.y + dy;
+
+        // Чекаем не наступил ли игрок на триггер блок прохождения уровней в эндлесс моде
+        // check finish trigger every frame
+        if (checkFinishTrigger({ ...player, x: nextX, y: nextY })) {
+          console.log('you stepped on the finish trigger block');
+        }
 
         // Check Wire Death
         if (checkWireDeath({ ...player, x: nextX, y: nextY })) {
@@ -2894,7 +2922,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
           }
         } else if (tile === TileType.WIRE) {
           // Barbed Wire rendering
-          ctx.fillStyle = '#222';
+
+          ctx.fillStyle = '#333';
           ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
 
           // Draw X patterns
@@ -2951,6 +2980,16 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
           ctx.fill();
 
           ctx.restore();
+
+          // Endless Next Level Block Trigger render
+        } else if (tile === TileType.ENDLESS_NEXT_LEVEL_BLOCK_TRIGGER) {
+          ctx.fillStyle = '#ff4fd8';
+          ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+
+          ctx.strokeStyle = '#ffffff';
+          ctx.globalAlpha = 0.3;
+          ctx.strokeRect(px + 2, py + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+          ctx.globalAlpha = 1;
         }
       }
     }

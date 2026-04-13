@@ -56,11 +56,12 @@ const App: React.FC = () => {
       deathCount,
       levelCount,
       levelMap,
+      setLevelMap,
       estusUnlocked,
       boneUnlocked,
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave));
-  }, [score, unlockedLevel, levelCount, levelMap, deathCount, estusUnlocked, boneUnlocked]);
+  }, [score, unlockedLevel, levelCount, levelMap, setLevelMap, deathCount, estusUnlocked, boneUnlocked]);
 
   // Handle Victory unlocking logic and game progress state
   useEffect(() => {
@@ -107,6 +108,8 @@ const App: React.FC = () => {
     setPlayerHp(PLAYER_MAX_HP);
 
     const generatedMap = generateRandomMap();
+
+    // тут назначается карта в моменте.
     LEVELS[LEVELS.length - 1] = generatedMap; // некст нужно парсить из константы в локал сторадже. Тогда у нас будет доступ до карты постоянно.
     // Сохраняем в локал сторадж. Все работает.
     setLevel(LEVELS.length); // LEVEL_0 ПОКА ЧТО РАБОТАЕТ. НЕ ТРОГАТЬ.
@@ -177,6 +180,7 @@ const App: React.FC = () => {
                 level={level}
                 levelCount={levelCount}
                 levelMap={levelMap}
+                setLevelMap={setLevelMap}
                 gameSessionId={gameSessionId}
                 onPlayerDeath={handlePlayerDeath}
                 estusUnlocked={estusUnlocked}

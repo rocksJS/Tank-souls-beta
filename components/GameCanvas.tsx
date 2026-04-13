@@ -67,6 +67,7 @@ import {
   BLOODSEEKER_BIG_POOL_RADIUS,
   BLOODSEEKER_TENTACLE_COUNT,
   BLOODSEEKER_TENTACLE_MAX_LENGTH,
+  generateNextMap,
 } from '../constants';
 import { Direction, GameState, Tank, TileType, Bullet, Explosion } from '../types';
 import { VENOM } from './bosses/bosses';
@@ -143,6 +144,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
   setScore,
   setEnemiesLeft,
   level,
+  setLevelMap,
   gameSessionId,
   onPlayerDeath,
   estusUnlocked,
@@ -154,6 +156,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Game State Refs
+  // Карта
   const mapRef = useRef<TileType[][]>([]);
   const tileHpRef = useRef<number[][]>([]); // Track specific HP for tiles
   const godModeRef = useRef<boolean>(false); // CHEAT: Invincibility
@@ -511,6 +514,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       // Estus Healing Logic (Updated for Infinite Use if Unlocked and Bone Active)
       // Эстус логика
       if (e.code === 'KeyE' && gameState === GameState.PLAYING) {
+        console.log('PLAYER PROPERTIRES ON E', playerRef.current);
         // 5000000$
         //
         // estusChargesRef и estusCharges разные каунтеры, синхронизируются где-то в коде для сайдбара
@@ -727,6 +731,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
   };
 
   const checkFinishTrigger = (player: Tank) => {
+    // чекфиниш;
     if (godModeRef.current) return false;
 
     const startX = Math.floor(player.x / TILE_SIZE);
@@ -927,7 +932,50 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         // Чекаем не наступил ли игрок на триггер блок прохождения уровней в эндлесс моде
         // check finish trigger every frame
         if (checkFinishTrigger({ ...player, x: nextX, y: nextY })) {
-          console.log('you stepped on the finish trigger block');
+          // regenerate Endless map
+          // задаём позицию player'а при тригере
+          // worldRef
+          playerRef.current.x = 418; // 386 или 418(слева в начале либо справа.)
+          playerRef.current.y = 612;
+
+          // //setLevelMap()
+          // setLevelMap([
+          //   // Top section (filled cavity)
+          //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 13, 0, 0, 0, 13, 0, 0, 0, 0, 0],
+          //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 1, 0, 2, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          //   // Original layout below
+          //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          //   [0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0],
+          //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          //   [0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+          //   [0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0, 0, 0],
+          //   [0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+          //   [0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0],
+          //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          // ]);
+          // generateNextMap();
+
+          // x
+          // 404
+          // y
+          // :
+          // 612
+          // регенерировать карту и менять позицию игрока в другое место.
+          // generateMap()
+          // playerPositioning(x, y)
+          console.log(player, 'player properties if we on trigger');
+          // player.x = 400;
+          // player.y = 700;
         }
 
         // Check Wire Death
@@ -2981,7 +3029,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
           ctx.restore();
 
-          // Endless Next Level Block Trigger render
+          // Endless Next Level Block Trigger
         } else if (tile === TileType.ENDLESS_NEXT_LEVEL_BLOCK_TRIGGER) {
           ctx.fillStyle = '#ff4fd8';
           ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);

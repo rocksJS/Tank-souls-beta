@@ -36,6 +36,8 @@ const App: React.FC = () => {
   const [unlockedLevel, setUnlockedLevel] = useState<number>(savedData?.unlockedLevel ?? 1);
 
   const [gameSessionId, setGameSessionId] = useState<number>(0);
+  const [endlessGameSessionId, setEndlessGSessionId] = useState<number>(0); // Endless Level Seed
+
   const [isGameInProgress, setIsGameInProgress] = useState<boolean>(false);
   const [deathCount, setDeathCount] = useState<number>(savedData?.deathCount ?? 0);
   const [playerHp, setPlayerHp] = useState<number>(PLAYER_MAX_HP);
@@ -43,6 +45,7 @@ const App: React.FC = () => {
   // Shop Items State
   const [estusUnlocked, setEstusUnlocked] = useState<boolean>(savedData?.estusUnlocked ?? false);
   const [estusCharges, setEstusCharges] = useState<number>(3);
+  const [endlessLevelMapGenerationsCount, setEndlessLevelMapGenerationsCount] = useState<number>(0);
   const [boneUnlocked, setBoneUnlocked] = useState<boolean>(savedData?.boneUnlocked ?? false);
 
   // --- Persistence Effect ---
@@ -96,11 +99,17 @@ const App: React.FC = () => {
   };
 
   const startGameTesting = () => {
+    // setEndlessLevelMapGenerationsCount(100);
+
+    console.log(endlessGameSessionId, 'ENDLESS MAP GENERATION COUNS');
+    // пока чтто задоем тут чтоб проверить цифру
     // написать функцию инициализации для режима.
 
     //generateLevelMap();
     //generateMobs();
     // console.log('старт гейм стори');
+
+    setEndlessGSessionId((prev) => prev + 1);
 
     setGameSessionId((prev) => prev + 1); // добавляем +1 к количеству гейм сессий, число хранится так же как число смертей
     setGameState(GameState.PLAYING); // Start the game
@@ -182,6 +191,7 @@ const App: React.FC = () => {
                 levelMap={levelMap}
                 setLevelMap={setLevelMap}
                 gameSessionId={gameSessionId}
+                endlessGameSessionId={endlessGameSessionId}
                 onPlayerDeath={handlePlayerDeath}
                 estusUnlocked={estusUnlocked}
                 estusCharges={estusCharges}

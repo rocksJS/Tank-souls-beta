@@ -42,6 +42,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
   setUnlockedLevel,
   isGameInProgress,
   deathCount,
+  endlessLevelMapGenerationsCount,
   estusUnlocked,
   setEstusUnlocked,
   boneUnlocked,

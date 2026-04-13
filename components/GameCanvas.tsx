@@ -67,10 +67,10 @@ import {
   BLOODSEEKER_BIG_POOL_RADIUS,
   BLOODSEEKER_TENTACLE_COUNT,
   BLOODSEEKER_TENTACLE_MAX_LENGTH,
-  generateNextMap,
 } from '../constants';
 import { Direction, GameState, Tank, TileType, Bullet, Explosion } from '../types';
 import { VENOM } from './bosses/bosses';
+import * as ROT from 'rot-js';
 
 // EMPTY ENTITY BOSS
 // template for entity
@@ -103,10 +103,13 @@ interface GameCanvasProps {
   setEnemiesLeft: React.Dispatch<React.SetStateAction<number>>;
   level: number;
   gameSessionId: number;
+  endlessGameSessionId: number;
   onPlayerDeath: () => void;
   estusUnlocked: boolean;
   estusCharges: number;
   setEstusCharges: React.Dispatch<React.SetStateAction<number>>;
+  endlessLevelMapGenerationsCount: number;
+  setEndlessLevelMapGenerationsCount: React.Dispatch<React.SetStateAction<number>>;
   infiniteEstus: boolean;
   setPlayerHp: React.Dispatch<React.SetStateAction<number>>;
 }
@@ -146,9 +149,12 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
   level,
   setLevelMap,
   gameSessionId,
+  endlessGameSessionId,
   onPlayerDeath,
   estusUnlocked,
   estusCharges,
+  endlessLevelMapGenerationsCount,
+  setEndlessLevelMapGenerationsCount,
   setEstusCharges,
   infiniteEstus,
   setPlayerHp,
@@ -190,6 +196,10 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
   const enemiesToSpawnRef = useRef<number>(20);
   const bossSpawnedRef = useRef<boolean>(false);
   const bossSpecialTimerRef = useRef<number>(0); // Timer for Glasscannon
+
+  // Endless mode
+
+  const finishTriggeredRef = useRef(false);
 
   // Chaotic movement refs
   const bossDashTimerRef = useRef<number>(0);
@@ -477,7 +487,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
   useEffect(() => {
     resetGame();
-  }, [gameSessionId, resetGame]);
+  }, [gameSessionId, endlessGameSessionId, resetGame]);
 
   // Input Handling
   useEffect(() => {
@@ -514,6 +524,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       // Estus Healing Logic (Updated for Infinite Use if Unlocked and Bone Active)
       // Эстус логика
       if (e.code === 'KeyE' && gameState === GameState.PLAYING) {
+        console.log(endlessGameSessionId, 'endlessGameSessionId');
         console.log('PLAYER PROPERTIRES ON E', playerRef.current);
         // 5000000$
         //
@@ -574,7 +585,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [estusUnlocked, gameState, setEstusCharges, infiniteEstus, setPlayerHp, resetGame]);
+  }, [estusUnlocked, gameState, setEstusCharges, endlessLevelMapGenerationsCount, infiniteEstus, setPlayerHp, resetGame]);
 
   // Utility: AABB Collision
   const checkRectCollision = (
@@ -650,6 +661,43 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     }
   };
 
+  const generateNextMap = () => {
+    console.log('Next map generated');
+    const map = [];
+    for (let i = 0; i < GRID_HEIGHT; i++) {
+      const row = [];
+      for (let j = 0; j < GRID_WIDTH; j++) {
+        row.push(Math.floor(Math.random() * 4)); // 0-3
+      }
+      map.push(row);
+    }
+    return [
+      // Top section (filled cavity)
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 1, 0, 2, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      // Original layout below
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+      [0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0, 0, 0],
+      [0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ];
+
+    // Ха, ха, шучу. Щас я найду какой-то крутой генератор в сети.
+  };
   // Utility: Check Map Collision
   const checkMapCollision = (rect: { x: number; y: number; width: number; height: number }, entityType?: 'player' | 'boss' | 'enemy') => {
     const startX = Math.floor(rect.x / TILE_SIZE);
@@ -731,7 +779,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
   };
 
   const checkFinishTrigger = (player: Tank) => {
-    // чекфиниш;
     if (godModeRef.current) return false;
 
     const startX = Math.floor(player.x / TILE_SIZE);
@@ -739,14 +786,196 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     const startY = Math.floor(player.y / TILE_SIZE);
     const endY = Math.floor((player.y + player.height - 0.1) / TILE_SIZE);
 
+    let isOnTrigger = false;
+
     for (let y = startY; y <= endY; y++) {
       for (let x = startX; x <= endX; x++) {
         if (y >= 0 && y < GRID_HEIGHT && x >= 0 && x < GRID_WIDTH) {
           if (mapRef.current[y][x] === TileType.ENDLESS_NEXT_LEVEL_BLOCK_TRIGGER) {
-            return true;
+            isOnTrigger = true;
           }
         }
       }
+    }
+
+    // 🔥 логика "сработать только один раз"
+    if (isOnTrigger && !finishTriggeredRef.current) {
+      // console.log('prishel na block');
+      // спавн карты в эндлесс моде
+
+      // запрос на getNextMap()
+
+      // Генерация карты бесконечного уровня
+      const generateEndlessLevel = (width = 26, height = 20): number[][] => {
+        const digger = new ROT.Map.Digger(width, height, {
+          roomWidth: [3, 7],
+          roomHeight: [3, 6],
+          corridorLength: [6, 10],
+          dugPercentage: 0.45,
+        });
+
+        const map: number[][] = Array.from({ length: height }, () => Array(width).fill(TileType.EMPTY));
+
+        // 1. Генерация базы + конвертация
+        digger.create((x, y, value) => {
+          if (value === 1) {
+            // стены
+            map[y][x] = Math.random() < 0.25 ? TileType.STEEL : TileType.BRICK;
+          } else {
+            // пол → добавляем контент
+            const r = Math.random();
+
+            if (r < 0.05) map[y][x] = TileType.WIRE;
+            else if (r < 0.1) map[y][x] = TileType.WATER;
+            else if (r < 0.15) map[y][x] = TileType.GRASS;
+            else map[y][x] = TileType.EMPTY;
+          }
+        });
+
+        // 2. Ставим выход (13)
+        // Нужно сделать по рандому или алгоритму тоже.
+        const exitX = Math.floor(width / 2);
+        const exitY = height - 2;
+
+        map[exitY][exitX] = TileType.ENDLESS_NEXT_LEVEL_BLOCK_TRIGGER;
+
+        // очищаем вокруг выхода
+        if (map[exitY - 1]) map[exitY - 1][exitX] = TileType.EMPTY;
+        if (map[exitY]) {
+          map[exitY][exitX - 1] = TileType.EMPTY;
+          map[exitY][exitX + 1] = TileType.EMPTY;
+        }
+
+        // 3. Гарантируем границы (чтобы не было дыр)
+        for (let x = 0; x < width; x++) {
+          map[0][x] = TileType.EMPTY;
+          map[height - 1][x] = TileType.EMPTY;
+        }
+
+        for (let y = 0; y < height; y++) {
+          map[y][0] = TileType.EMPTY;
+          map[y][width - 1] = TileType.EMPTY;
+        }
+
+        return map;
+      };
+
+      const generateEndlessLevel2 = (
+        width = 26,
+        height = 20,
+        level = 1 // для сложности
+      ): number[][] => {
+        // записать в консту количество генераций.
+        const digger = new ROT.Map.Digger(width, height, {
+          roomWidth: [4, 8],
+          roomHeight: [4, 7],
+          corridorLength: [3, 8],
+          dugPercentage: 0.5,
+        });
+
+        const map: number[][] = Array.from({ length: height }, () => Array(width).fill(TileType.STEEL));
+
+        const floorCells: [number, number][] = [];
+
+        // 1. Генерация карты
+        digger.create((x, y, value) => {
+          if (value === 0) {
+            map[y][x] = TileType.EMPTY;
+            floorCells.push([x, y]);
+          } else {
+            map[y][x] = Math.random() < 0.25 ? TileType.STEEL : TileType.BRICK;
+          }
+        });
+
+        // 2. Получаем комнаты
+        const rooms = digger.getRooms();
+
+        // 🟢 spawn игрока (первая комната)
+        const startRoom = rooms[0];
+        const [startX, startY] = startRoom.getCenter();
+
+        // 🔴 выход (последняя комната)
+        const endRoom = rooms[rooms.length - 1];
+        const [exitX, exitY] = endRoom.getCenter();
+
+        map[exitY][exitX] = TileType.ENDLESS_NEXT_LEVEL_BLOCK_TRIGGER;
+
+        // 3. SAFE ZONES (чтобы не заспавнился мусор)
+        const safeRadius = 2;
+
+        const isSafe = (x: number, y: number) => Math.abs(x - startX) <= safeRadius && Math.abs(y - startY) <= safeRadius;
+
+        const isNearExit = (x: number, y: number) => Math.abs(x - exitX) <= safeRadius && Math.abs(y - exitY) <= safeRadius;
+
+        // 4. Заполняем карту контентом
+        for (const [x, y] of floorCells) {
+          if (isSafe(x, y) || isNearExit(x, y)) continue;
+
+          const r = Math.random();
+
+          // scaling сложности
+          const difficulty = Math.min(level * 0.02, 0.25);
+
+          if (r < 0.03 + difficulty) {
+            map[y][x] = TileType.WIRE;
+          } else if (r < 0.08) {
+            map[y][x] = TileType.WATER;
+          } else if (r < 0.15) {
+            map[y][x] = TileType.GRASS;
+          }
+        }
+
+        // 5. Гарантия границ
+        for (let x = 0; x < width; x++) {
+          map[0][x] = TileType.EMPTY;
+          map[height - 1][x] = TileType.EMPTY;
+        }
+
+        for (let y = 0; y < height; y++) {
+          map[y][0] = TileType.EMPTY;
+          map[y][width - 1] = TileType.EMPTY;
+        }
+
+        return map;
+      };
+
+      // Тут ставится карта
+
+      mapRef.current = generateEndlessLevel2();
+
+      // console.log(digger, 'digger function когда наехал на блок');
+      // mapRef.current = [
+      //   // Top section (filled cavity)
+      //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0],
+      //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 2, 0, 1, 0, 0, 1, 0, 2, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      //   // Original layout below
+      //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0],
+      //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      //   [0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0],
+      //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      //   [0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+      //   [0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0, 0, 0],
+      //   [0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+      //   [0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0],
+      //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      //   [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+      //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      // ];
+
+      finishTriggeredRef.current = true;
+      return true;
+    }
+
+    // сброс, когда игрок ушёл с блока
+    if (!isOnTrigger) {
+      finishTriggeredRef.current = false;
     }
 
     return false;
@@ -933,10 +1162,11 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         // check finish trigger every frame
         if (checkFinishTrigger({ ...player, x: nextX, y: nextY })) {
           // regenerate Endless map
-          // задаём позицию player'а при тригере
-          // worldRef
+          // Переносим плеера
           playerRef.current.x = 418; // 386 или 418(слева в начале либо справа.)
           playerRef.current.y = 612;
+
+          // generateNextLevel()
 
           // //setLevelMap()
           // setLevelMap([
@@ -963,7 +1193,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
           //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
           //   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
           // ]);
-          // generateNextMap();
 
           // x
           // 404

@@ -72,6 +72,8 @@ import { Direction, GameState, Tank, TileType, Bullet, Explosion } from '../type
 import { VENOM } from './bosses/bosses';
 import * as ROT from 'rot-js';
 
+// Get random position
+const getRandomPos = (w: number, h: number) => [Math.floor(Math.random() * w), Math.floor(Math.random() * h)];
 // EMPTY ENTITY BOSS
 // template for entity
 const ENTITY = {
@@ -104,6 +106,7 @@ interface GameCanvasProps {
   level: number;
   gameSessionId: number;
   endlessGameSessionId: number;
+  setEndlessGameSessionId: React.Dispatch<React.SetStateAction<number>>;
   onPlayerDeath: () => void;
   estusUnlocked: boolean;
   estusCharges: number;
@@ -150,6 +153,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
   setLevelMap,
   gameSessionId,
   endlessGameSessionId,
+  setEndlessGameSessionId,
   onPlayerDeath,
   estusUnlocked,
   estusCharges,
@@ -865,6 +869,12 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         height = 20,
         level = 1 // для сложности
       ): number[][] => {
+        // set seed
+        ROT.RNG.setSeed(endlessGameSessionId);
+
+        // setEnd(prev)
+
+        console.log(endlessGameSessionId, 'id on map generate');
         // записать в консту количество генераций.
         const digger = new ROT.Map.Digger(width, height, {
           roomWidth: [4, 8],
@@ -896,9 +906,16 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
         // 🔴 выход (последняя комната)
         const endRoom = rooms[rooms.length - 1];
-        const [exitX, exitY] = endRoom.getCenter();
 
-        map[exitY][exitX] = TileType.ENDLESS_NEXT_LEVEL_BLOCK_TRIGGER;
+        // const [exitX, exitY] = endRoom.getCenter();
+
+        // Рандомная генерация выхода на endless mode карте.
+
+        const [exitX, exitY] = getRandomPos(26, 20);
+
+        console.log(exitX, exitY, 'генерация позиции для выхода', 'X and Y');
+
+        // ставим выход
 
         // 3. SAFE ZONES (чтобы не заспавнился мусор)
         const safeRadius = 2;
@@ -935,6 +952,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
           map[y][0] = TileType.EMPTY;
           map[y][width - 1] = TileType.EMPTY;
         }
+
+        map[exitY][exitX] = TileType.ENDLESS_NEXT_LEVEL_BLOCK_TRIGGER;
 
         return map;
       };

@@ -36,7 +36,7 @@ const App: React.FC = () => {
   const [unlockedLevel, setUnlockedLevel] = useState<number>(savedData?.unlockedLevel ?? 1);
 
   const [gameSessionId, setGameSessionId] = useState<number>(0);
-  const [endlessGameSessionId, setEndlessGSessionId] = useState<number>(0); // Endless Level Seed
+  const [endlessGameSessionId, setEndlessGameSessionId] = useState<number>(0); // Endless Level Seed
 
   const [isGameInProgress, setIsGameInProgress] = useState<boolean>(false);
   const [deathCount, setDeathCount] = useState<number>(savedData?.deathCount ?? 0);
@@ -99,6 +99,7 @@ const App: React.FC = () => {
   };
 
   const startGameTesting = () => {
+    console.log('Started Adventure mode');
     // setEndlessLevelMapGenerationsCount(100);
 
     console.log(endlessGameSessionId, 'ENDLESS MAP GENERATION COUNS');
@@ -109,7 +110,7 @@ const App: React.FC = () => {
     //generateMobs();
     // console.log('старт гейм стори');
 
-    setEndlessGSessionId((prev) => prev + 1);
+    setEndlessGameSessionId((prev) => prev + 1);
 
     setGameSessionId((prev) => prev + 1); // добавляем +1 к количеству гейм сессий, число хранится так же как число смертей
     setGameState(GameState.PLAYING); // Start the game
@@ -192,6 +193,7 @@ const App: React.FC = () => {
                 setLevelMap={setLevelMap}
                 gameSessionId={gameSessionId}
                 endlessGameSessionId={endlessGameSessionId}
+                setendlessGameSessionId={setEndlessGameSessionId}
                 onPlayerDeath={handlePlayerDeath}
                 estusUnlocked={estusUnlocked}
                 estusCharges={estusCharges}

@@ -227,7 +227,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({
               className="group relative px-10 py-3 bg-transparent hover:bg-gray-900 text-gray-300 font-serif text-xl border border-gray-600 hover:border-gray-400 transition-all duration-500 ease-in-out w-full max-w-xs mt-8 mb-2"
             >
               <span className="absolute inset-0 w-full h-full bg-gray-800/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
-              <span className="relative tracking-widest uppercase">Begin Journey test</span>
+              <span className="relative tracking-widest uppercase">Begin Testing</span>
             </button>
 
             {isGameInProgress && (

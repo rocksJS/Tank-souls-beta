@@ -1,5 +1,6 @@
 import React from 'react';
 import { GameState } from '../types';
+import { useYSDK } from './YandexSDKContent';
 
 interface SidebarProps {
   enemiesLeft: number;
@@ -11,6 +12,35 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ enemiesLeft, score, level, setGameState, playerHp, estusCharges }) => {
+  const { ysdk, sdkReady } = useYSDK(); // ← Получаем SDK из Context
+
+  // Функция для перехода в полноэкранный режим
+  const enterFullscreen = async () => {
+    if (!ysdk) {
+      console.warn('Yandex SDK ещё не готов');
+      return;
+    }
+
+    try {
+      await ysdk.screen.fullscreen.request();
+      console.log('✅ Полноэкранный режим включён');
+    } catch (err) {
+      console.error('❌ Не удалось включить полноэкранный режим', err);
+    }
+
+    // const element = document.documentElement; // весь документ
+
+    // if (element.requestFullscreen) {
+    //   element.requestFullscreen();
+    // } else if ((element as any).webkitRequestFullscreen) {
+    //   (element as any).webkitRequestFullscreen(); // Safari
+    // } else if ((element as any).msRequestFullscreen) {
+    //   (element as any).msRequestFullscreen(); // IE
+    // }
+
+    // console.log('Нативный fullscreen активирован');
+  };
+
   return (
     <div className="bg-[#1a1a1a] flex flex-col justify-between font-mono border-l-4 border-[#333] min-w-[200px]">
       {/* Top Section: Icons + HP */}
@@ -20,7 +50,6 @@ const Sidebar: React.FC<SidebarProps> = ({ enemiesLeft, score, level, setGameSta
           <div className="grid grid-cols-2 gap-1 w-16 mx-auto">
             {Array.from({ length: 20 }).map((_, i) => (
               <div key={i} className={`w-6 h-6 ${i < enemiesLeft ? 'opacity-100' : 'opacity-0'}`}>
-                {/* Simple Tank Icon */}
                 <svg viewBox="0 0 24 24" className="w-full h-full fill-[#888]">
                   <rect x="2" y="4" width="4" height="16" />
                   <rect x="18" y="4" width="4" height="16" />
@@ -33,10 +62,8 @@ const Sidebar: React.FC<SidebarProps> = ({ enemiesLeft, score, level, setGameSta
         </div>
 
         {/* Player HP */}
-
         <div className="text-gray-400 font-bold text-xl flex flex-col items-start w-full pl-1">
           <div className="flex items-center pl-2">
-            {/* Heart Icon */}
             <svg viewBox="0 0 24 24" className="w-6 h-6 mr-2 fill-red-600 drop-shadow-[0_0_5px_rgba(220,20,60,0.6)]">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
@@ -50,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({ enemiesLeft, score, level, setGameSta
         </div>
       </div>
 
-      {/* Bottom Section: Score & Buttons - Pushed to bottom via parent justify-between */}
+      {/* Bottom Section: Score & Buttons */}
       <div className="w-full border-t-2 border-[#444] p-4 flex flex-col gap-3 bg-[#1a1a1a]">
         {/* Score Counter */}
         <div className="w-full text-center">
@@ -72,6 +99,15 @@ const Sidebar: React.FC<SidebarProps> = ({ enemiesLeft, score, level, setGameSta
             className="w-full py-2 bg-[#1a1a1a] hover:bg-[#2a2a2a] text-yellow-600/80 text-[10px] uppercase font-bold tracking-wider rounded border border-yellow-900/30 hover:border-yellow-600/50 transition-colors"
           >
             Магазин
+          </button>
+
+          {/* Кнопка полноэкранного режима */}
+          <button
+            onClick={enterFullscreen}
+            disabled={!sdkReady}
+            className="w-full py-2 bg-[#1a1a1a] hover:bg-[#2a2a2a] text-yellow-600/80 text-[10px] uppercase font-bold tracking-wider rounded border border-yellow-900/30 hover:border-yellow-600/50 transition-colors disabled:opacity-50"
+          >
+            {sdkReady ? 'FULL SCREEN' : 'Загрузка...'}
           </button>
         </div>
       </div>

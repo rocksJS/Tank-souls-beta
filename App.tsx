@@ -4,6 +4,8 @@ import UIOverlay from './components/UIOverlay';
 import Sidebar from './components/Sidebar';
 import { GameState, Tank } from './types';
 import { LEVELS, PLAYER_MAX_HP, generateRandomMap, getLastItemInArray } from './constants';
+// Импорт необходимых типов модулей SDK.
+import type { SDK, Player } from 'ysdk';
 
 const SAVE_KEY = 'tank_souls_save_data_v1';
 const LEVEL_COUNT = 5;
@@ -19,6 +21,9 @@ const App: React.FC = () => {
       return null;
     }
   };
+
+  const [sdkReady, setSdkReady] = useState<boolean>(false);
+  const [player, setPlayer] = useState<Player | null>(null);
 
   // Attempt to load saved game state from local storage
   const savedData = getSavedData(); // Get saved game state from local storage, if any <-- Windsurf Testing by me
@@ -48,6 +53,14 @@ const App: React.FC = () => {
   const [endlessLevelMapGenerationsCount, setEndlessLevelMapGenerationsCount] = useState<number>(0);
   const [boneUnlocked, setBoneUnlocked] = useState<boolean>(savedData?.boneUnlocked ?? false);
 
+  // useEffect(() => {
+  //   if (ysdk) {
+  //     console.log('Yandex SDK готов к использованию');
+  //     // Здесь можно получить игрока и т.д.
+  //   } else {
+  //     console.log('Работаем в локальном режиме без Yandex SDK');
+  //   }
+  // }, [ysdk]);
   // --- Persistence Effect ---
   useEffect(() => {
     const dataToSave = {
@@ -66,6 +79,15 @@ const App: React.FC = () => {
     localStorage.setItem(SAVE_KEY, JSON.stringify(dataToSave));
   }, [score, unlockedLevel, levelCount, levelMap, setLevelMap, deathCount, estusUnlocked, boneUnlocked]);
 
+  // Импорт Яндекс.Консоли и SDK
+  // useEffect(() => {
+  //   async function initSDK() {
+  //     const ysdk = await YaGames.init();
+  //     const player: Player = await ysdk.getPlayer();
+  //     console.log('initSDK', ysdk, player);
+  //   }
+  //   initSDK();
+  // }, []);
   // Handle Victory unlocking logic and game progress state
   useEffect(() => {
     if (gameState === GameState.VICTORY) {

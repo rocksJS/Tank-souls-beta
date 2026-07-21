@@ -1,15 +1,56 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import './index.css';
+import { YandexSDKProvider } from './components/YandexSDKContent';
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
+async function loadYandexSDK(): Promise<any> {
+  return new Promise((resolve, reject) => {
+    if ((window as any).YaGames) {
+      return resolve((window as any).YaGames);
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://yandex.ru/games/sdk/v2';
+    script.async = true;
+
+    script.onload = () => resolve((window as any).YaGames);
+    script.onerror = () => reject(new Error('Не удалось загрузить SDK'));
+
+    document.head.appendChild(script);
+  });
 }
 
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+async function initYandexSDK() {
+  let ysdk = null;
+
+  try {
+    const YaGames = await loadYandexSDK();
+    ysdk = await YaGames.init({
+      screen: {
+        fullscreen: true,
+        orientation: {
+          value: 'portrait',
+          lock: true,
+        },
+      },
+    });
+    console.log('✅ Yandex Games SDK успешно инициализирован');
+    (window as any).ysdk = ysdk;
+  } catch (error) {
+    console.warn('⚠️ SDK не удалось полностью инициализировать (локальный режим)', error);
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById('root')!);
+  root.render(
+    <React.StrictMode>
+      <YandexSDKProvider ysdk={ysdk}>
+        {' '}
+        {/* ← Обернули App в Provider */}
+        <App />
+      </YandexSDKProvider>
+    </React.StrictMode>
+  );
+}
+
+initYandexSDK();

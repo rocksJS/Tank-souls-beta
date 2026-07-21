@@ -218,6 +218,29 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     estusChargesRef.current = estusCharges;
   }, [estusCharges]);
 
+  // Ставим на паузу когда свернул
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setGameState(GameState.MENU);
+        console.log('Пауза при сворачивании');
+
+        // audio.pause();
+      } else {
+        console.log('Вкладка снова активна');
+        setGameState(GameState.MENU);
+        // Возобновить музыку
+        // audio.play();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   // Helper: Reset Game
   const resetGame = useCallback(() => {
     // Select map

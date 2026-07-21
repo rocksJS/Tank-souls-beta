@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+body {
+  font-family: 'Press Start 2P', monospace; /* NES-style font default */
+  background-color: #0a0a0a;
+}
+.font-gothic {
+  font-family: 'UnifrakturMaguntia', cursive;
+}
+@keyframes fogSlide {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+.animate-fog-slide {
+  animation: fogSlide 40s linear infinite;
+}
